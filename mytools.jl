@@ -31,6 +31,12 @@ function GetImageIndices(obj::CoordsToIndices, x, y)
     OffSetYRatio    = OffSetYInCoords/HeightInCoords
     OffSetXPixel    = ceil(OffSetXRatio*obj.Width)
     OffSetYPixel    = ceil(OffSetYRatio*obj.Height)
+    if OffSetXPixel == 0
+        OffSetXPixel = 1
+    end
+    if OffSetYPixel == 0
+        OffSetYPixel = 1
+    end
     return trunc(Int64, OffSetYPixel), trunc(Int64, OffSetXPixel)
 end
 
