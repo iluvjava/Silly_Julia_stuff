@@ -30,6 +30,7 @@ function SingleShiftedQR!(m::AbstractArray{<: Number}; maxItr::Int64 = 1000, ver
     return A[EigenColumn, EigenColumn], QAccumulated[:, EigenColumn]
 end
 
+
 """
     Perform a recusive search of the Eigenvalues for the given Hermitian Matrix. 
 """
