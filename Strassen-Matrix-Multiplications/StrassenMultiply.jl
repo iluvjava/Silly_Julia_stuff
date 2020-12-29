@@ -108,7 +108,7 @@ function StrassenMultiply(A:: Array{Float64}, B::Array{Float64}; blockSize = 8)
 end
 
 
-function main()
+function BigTest()
     M1 = rand(2^11, 2^11); M2 = rand(2^11, 2^11)
     println("Naive Implementation: ")
     @time C2 = NaiveMultiply(M1, M2)
@@ -146,3 +146,4 @@ function HarderTest()
 end
 BriefTest()
 HarderTest()
+BigTest()
