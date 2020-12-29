@@ -1,4 +1,3 @@
-
 using DelimitedFiles
 
 function NaiveMultiply(A:: Array{Float64, 2}, B:: Array{Float64, 2})
@@ -99,7 +98,7 @@ function StrassenMultiply(A:: Array{Float64}, B::Array{Float64}; blockSize = 8)
         d = Bool3 ? view(B, 2n + 1, 1: 2k) : zeros(2k)
         c = Bool4 ? view(B, 1: 2n, 2k + 1) : zeros(2n)
         C[1: 2m, 1: 2k]      += b*d'
-        C[[end], 1: 2k] += a'*view(B, 1: 2n, 1: 2k) + x.*d'
+        C[[end], 1: 2k]      += a'*view(B, 1: 2n, 1: 2k) + x.*d'
         C[1: 2m, end]        += view(A, 1: 2m, 1: 2n)*c + y.*b
         C[end, end]          += a'*c + x*y
     end
