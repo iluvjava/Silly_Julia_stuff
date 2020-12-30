@@ -1,4 +1,5 @@
-using DelimitedFiles
+
+module Strassen
 
 function NaiveMultiply(A:: Array{Float64, 2}, B:: Array{Float64, 2})
     C = Array{Float64}(undef, size(A, 1), size(B, 2))
@@ -112,44 +113,5 @@ function StrassenMultiply(A:: Array{Float64}, B::Array{Float64}; blockSize = 8)
     return C
 end 
 
-
-function BigTest()
-    M1 = rand(2^11, 2^11); M2 = rand(2^11, 2^11)
-    println("Naive Implementation: ")
-    @time C2 = NaiveMultiply(M1, M2)
-    print("StrassenMultiply: ")
-    @time C3 = StrassenMultiply(M1, M2)
-    BooleanMatrix2 = map((x)-> abs(x) ≤ 1e-9, C2 - M1*M2)
-    BooleanMatrix3 = map((x)-> abs(x) ≤ 1e-9, C3 - M1*M2)
-    println("Naive Multiply: Number of correct entries: ", sum(BooleanMatrix2))
-    println("Strassens's Number of correct entries: ", sum(BooleanMatrix3))
-end
-
-function BriefTest()
-    M1 = rand(7, 15)
-    M2 = rand(15, 15)
-    C = StrassenMultiply(M1, M2; blockSize = 2)
-    print("CorrectAnswer: ")
-    display(M1*M2)
-    print("Strassen gives: ")
-    display(C)
-end
-
-function HarderTest()
-    m, n, k = 2^4 - 1, 2^4 - 2, 2^4 - 3
-    M1 = rand(m, n)
-    M2 = rand(n, k)
-    C  = StrassenMultiply(M1, M2; blockSize=2)
-    CorrectEntries = map((x, y)-> Int8(abs(x - y) ≤ 1e-8), M1*M2, C)
-    writedlm("FileName.csv",  CorrectEntries, ',')
-    println("The number of correct entries is: ")
-    println(sum(CorrectEntries))
-    println("And it should be: ")
-    println(m*k)
-    display(C)
-    display(M1*M2)
-end
-
-# BriefTest()
-# HarderTest()
-# BigTest()
+export StrassenMultiply, NaiveMultiply
+end 
