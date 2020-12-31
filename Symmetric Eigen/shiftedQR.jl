@@ -52,7 +52,7 @@ function RecursiveShiftedQR!(m::AbstractArray{<:Number})
         for II = 1: maxItr
             μ = A[end, end] 
             QRDecomp = qr(A - μ.*I)
-            Q, R     = QRDecomp.Q, QRDecomp.R
+            Q, R     = QRDecomp.Q, QRDecomp.R           # Too much garbage collections here. 
             A[:, :]  = R*Q + μ.*I
             # QAccumulated = QAccumulated*Q
             for JJ = 1: width - 1
@@ -93,14 +93,18 @@ function RandTridiognalHermitian(n:: Int64)
     return Result
 end
 
-N = 512
-SymmetricMatrix = rand(N, N)
-SymmetricMatrix = SymmetricMatrix + SymmetricMatrix'
-# SymmetricMatrix = RandTridiognalHermitian(N)
-@time EigenDecomp = eigen(SymmetricMatrix)
-@time RecursiveShiftedQR!(SymmetricMatrix)  # TridSymMatrix is destroyed because of mutability
-display(sort(diag(SymmetricMatrix)))
-display(EigenDecomp.values)
-println("AbsoluteError: ", norm(EigenDecomp.values - sort(diag(SymmetricMatrix))))
 
-# This is accurage, but the algorithm is not the impressive. :c
+function briefTest()
+    N = 512
+    SymmetricMatrix = rand(N, N)
+    SymmetricMatrix = SymmetricMatrix + SymmetricMatrix'
+    # SymmetricMatrix = RandTridiognalHermitian(N)
+    @time EigenDecomp = eigen(SymmetricMatrix)
+    @time RecursiveShiftedQR!(SymmetricMatrix)  # TridSymMatrix is destroyed because of mutability
+    display(sort(diag(SymmetricMatrix)))
+    display(EigenDecomp.values)
+    println("AbsoluteError: ", norm(EigenDecomp.values - sort(diag(SymmetricMatrix))))
+    # This is accurate, but the algorithm is not the impressive. :c
+end
+
+briefTest()
