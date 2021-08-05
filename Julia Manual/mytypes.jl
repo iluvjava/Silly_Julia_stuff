@@ -1,3 +1,7 @@
+### ----------------------------------------------------------------------------
+###  This is a basic Binary Search Tree Class with some methods
+### ----------------------------------------------------------------------------
+
 using BenchmarkTools
 using InteractiveUtils
 
@@ -5,9 +9,10 @@ using InteractiveUtils
 writeLine(x...)=(println ∘ string)(x...)
 
 
-# An abstract type, that is like, purely a type and no other usage, you can't instantiante it. 
+# An abstract type, that is like, purely a type and no other usage, you can't
+# instantiante it. 
 abstract type SortedSet{T}
-
+    
 end
 
 # ---------------------------- binary Node -------------------------------------
@@ -24,24 +29,25 @@ mutable struct BinaryNode{T}
 
     # This disable the default constructor. 
     function BinaryNode{T}(item) where T 
-        new(nothing, nothing, nothing, item)
+        new{T}(nothing, nothing, nothing, item)
     end
 end
 
 
 # ----------------------- Binary Search tree -----------------------------------
+
 mutable struct BinaryTree{T} <: SortedSet{T}
     # It has a root to it
     root::Union{BinaryNode{T}, Nothing}
     count::UInt32
     
     function BinaryTree{T}() where T
-        new(nothing, 0)
+        new{T}(nothing, 0)
     end
 end
 
 
-function Base.push!(this::BinaryTree{T}, item::T)::Nothing where T
+function Base.push!(this::BinaryTree{T}, item::T)::Nothing where {T}
     Added::Bool = false
         function insert!(
                 this::Union{BinaryNode{T}, Nothing},
@@ -52,7 +58,7 @@ function Base.push!(this::BinaryTree{T}, item::T)::Nothing where T
             if this === nothing
                 NewNode = BinaryNode{T}(item)
                 NewNode.parent = parent
-                Added = true     
+                Added = true # modifies the outter scope 
                 return NewNode
             end
 
@@ -83,30 +89,53 @@ function Base.length(this::BinaryTree)::UInt32
 end
 
 # ------------------------- Iterate --------------------------------------------
-# The traversal will be in order 
-function Base.iterate(this::BinaryTree{T}) where T
-    if this.root === nothing
-        return nothing
-    end
-    # start with the smallest 
-    while !(this.left === nothing)
-        this = this.left
-    end
-    return (this.data, this)
+# The traversal will be in order
+# States: 
+#   Current Node
+#   Integer of {1, 2, 3}
+#       0. printing left 
+#       1. printing middle
+#       2. printing right
+#       3. ignore the node
+
+function Base.iterate(this::BinaryNode)
+    return iterate(this, (this, [0x0]))
 end
 
-function Base.iterate(A::BinaryTree{T}, state::BinaryNode{T}) where T
-    
-
-
+function Base.iterate(this::BinaryNode, states_chain::Tuple)
+    # Assign types to speed it up. 
+    n = states_chain[1]::BinaryNode
+    v = states_chain[2]::Vector{UInt8}
+    while length(v) != 0
+        # root node
+        if length(v) == 0
+            return (this.data, states_chain)
+        end
+        s = v[end]
+        if s == 0
+            v[end] = 0x1
+            if n.left === nothing
+                continue
+            else
+                append!(v, 0)
+                n = n.left
+            end
+        elseif s == 1
+            v[end] = 0x2
+            return (n.data, (n, v))
+        elseif s == 2
+            v[end] = 0x3
+            if n.right === nothing 
+                continue
+            else
+                append!(v, 0)
+                n = n.right
+            end
+        else
+            pop!(v)
+            n = n.parent
+        end
+    end
+    return nothing
 end
-
-tree = BinaryTree{Int64}()
-push!(tree, 3)
-push!(tree, 4)
-push!(tree, 2)
-println(tree.root.data)
-println(tree.root.left.data)
-println(tree.root.right.data)
-println(length(tree))
 
