@@ -35,4 +35,14 @@ This part is covered: [here](./data_manipulation_split_apply_combine.jl)
 
 Use the do block it's the coolest and easiest to remember. 
 
+### **Plotting**
 
+You just need more practice to get use to it.
+
+The cheatsheet is [here](./plotsjl-cheatsheet.pdf)
+
+> However, do take notice that the plotting library for Julia has many different back ends. 
+
+[Here](https://docs.juliaplots.org/latest/backends/) is a list of backend that is supported by `Plots` package in julia. 
+
+And there is even the [Unicode Plot](https://github.com/Evizero/UnicodePlots.jl) which allows for plotting on the terminal. 
