@@ -19,4 +19,13 @@ We will be doing some examples Numerical Optimzation problems using Julia.
 ---
 ### **A Simple Example**
 
+Box projected L2 norm optimization. 
+
+See [Simple_Example](./Simple_Example.jl) for more. 
+
+---
+### **Lasso With L1 Norm**
+
+Using the obe norm to do L1 regression analysis. 
+
 

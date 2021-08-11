@@ -9,7 +9,25 @@ A majority stuff will be referenced from [here](https://pkgdocs.julialang.org/v1
 ### **Basics**
 To enter the package managing mode in REPL use `]` on the prompt. 
 
-```
-activate 
-```
+```activate . ```
+
 This command activates the venv at the current work directory. `pwd()` brings up the directory in julia. 
+
+```status```
+
+Chack all the installed packages for the current environment 
+
+
+```rm```
+
+Remove a list of name packages. 
+
+```precompile```
+
+Compile the list of new added packages. 
+
+
+
+### **Advanced**
+
+Go to the website and learn about package development. 
