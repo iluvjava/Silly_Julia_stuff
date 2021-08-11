@@ -1,13 +1,6 @@
 using Test
 using UnicodePlots
-include("L1_Lasso.jl")
-
-function VanderMonde(x::Vector{T}, deg::Int64) where {T<: Number} ::Matrix{T}
-    
-
-end
-
-
+include("regression_tools.jl")
 
 function Test1()::Bool
     X = rand(4, 4)

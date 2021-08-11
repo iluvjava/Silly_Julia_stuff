@@ -9,6 +9,12 @@ Loss: ‖y - Xα‖^2 + ‖α‖_1
 """
 using Convex, SCS, Statistics
 
+function VanderMonde(x::Vector{T}, deg::Int64) where {T<: Number} ::Matrix{T}
+    
+
+end
+
+
 function LassoRidgeElasticNet(
     X::Matrix{T}, 
     y::Matrix{T}, 
@@ -16,14 +22,14 @@ function LassoRidgeElasticNet(
     γ::Float64=0.0, # ridge regularizer
     verbose::Bool=true
 ) where {T <: Number}
-"""
-    LassoRidgeElasticNet, it doesn't support biases it will only optimized 
-    on weights, sorry about that. 
+    """
+        LassoRidgeElasticNet, it doesn't support biases it will only optimized 
+        on weights, sorry about that. 
 
-    Returns: 
-        β, the weights, and problem, the optimization object. 
+        Returns: 
+            β, the weights, and problem, the optimization object. 
 
-"""
+    """
     m, n = size(X)
     @assert size(y, 1) == m && size(y, 2) == 1 "the label and"* 
     " the data matrix doesn't have the maching dimension X:" * 
@@ -35,7 +41,7 @@ function LassoRidgeElasticNet(
     b = y'*X
     β = Variable(n) # the weights 
     
-    Loss = quadform(β, Q)           # β^T*Q*β
+    Loss  = quadform(β, Q)          # β^T*Q*β
     Loss += dot(b, β)               # β^T*b
     Loss += λ*norm(β, 1)            # λ ‖β‖_1
     Loss += γ*sumsquares(β)         # γ ‖β‖_2^2
@@ -67,6 +73,7 @@ mutable struct StandardizeRegression
         m, _ = size(X)
         @assert size(y, 1) == m && size(y, 2) == 1 "The rows of X should match of the columns of y, but the size of"*
         string("X, Y is: ", size(X), " ", size(y))
+
         μ = mean(X, dims=1)::Matrix
         ϕ = mean(y)
         Z = X .- μ
@@ -86,7 +93,7 @@ end
 
 function PredictWithWeights(stadreg::StandardizeRegression, β::Matrix)
 
-
+    
 
 end
 
