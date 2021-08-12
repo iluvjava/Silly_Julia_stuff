@@ -1,3 +1,27 @@
+
+using Convex, SCS, Statistics
+
+function VanderMonde(x::Array{T}, deg::Int64) where {T <: Real}
+    """
+        Get the vandermond matrix from a column vector, only support 
+        real numbers for now. 
+    """
+
+    @assert ndims(x) == 2 "expect x to be a column vector of size (n, 1)"*
+    string("But its dimension is: ", ndims(x))
+    @assert size(x, 2) == 1 "Expect the second dimension to have size 1"*
+    string(" but the actual size for x is: ", size(x))
+
+    n = size(x, 1)
+    V = zeros(n, deg) # fill with the same type. 
+    V[:, 1] = x
+    for Col ∈ 2:deg
+        V[:, Col] = x.^Col
+    end
+    return V
+end
+
+
 # Using convex solver for Lasso, ridge, and elastic net. 
 raw"""
 model: y = Xα
@@ -7,27 +31,20 @@ X: row data matrix
 Loss: ‖y - Xα‖^2 + ‖α‖_1
 
 """
-using Convex, SCS, Statistics
-
-function VanderMonde(x::Vector{T}, deg::Int64) where {T<: Number} ::Matrix{T}
-    
-
-end
-
-
 function LassoRidgeElasticNet(
     X::Matrix{T}, 
     y::Matrix{T}, 
     λ::Float64=0.0, # lasso regularizer 
     γ::Float64=0.0, # ridge regularizer
-    verbose::Bool=true
+    verbose::Bool=true; 
+    problem::Union{Nothing, Problem}=nothing
 ) where {T <: Number}
     """
         LassoRidgeElasticNet, it doesn't support biases it will only optimized 
         on weights, sorry about that. 
 
         Returns: 
-            β, the weights, and problem, the optimization object. 
+            β, the weights, and problem, the optimization object (for warmstarting). 
 
     """
     m, n = size(X)
@@ -40,14 +57,17 @@ function LassoRidgeElasticNet(
     Q = X'*X
     b = y'*X
     β = Variable(n) # the weights 
+    β.value = (Q + γ*I)\(X'y)  # warm starting
     
     Loss  = quadform(β, Q)          # β^T*Q*β
     Loss += dot(b, β)               # β^T*b
     Loss += λ*norm(β, 1)            # λ ‖β‖_1
     Loss += γ*sumsquares(β)         # γ ‖β‖_2^2
     
-    problem = minimize(Loss)
-    solve!(problem, ()-> SCS.Optimizer(verbose=verbose))
+    if problem ≡ nothing
+        problem = minimize(Loss)
+    end
+    solve!(problem, ()-> SCS.Optimizer(verbose=verbose), warmstart=true)
     problem.status == SCS.MathOptInterface.OPTIMAL ? vec(evaluate(β)) : β = nothing
     
     return β, problem

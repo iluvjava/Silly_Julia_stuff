@@ -7,7 +7,9 @@ We will be doing some examples Numerical Optimzation problems using Julia.
   * This one is more famous, and can interface with various different kind of solvers
   * This one has more tutorial examples. 
 * `GLPK`: This is just a library in C and Julia Wraps around it. 
-* `Convex.jl`: This is for convex problems, see [here](https://jump.dev/Convex.jl/stable/) for more. Usually people use stuff like: 
+* `COSMO`: A pure julia optimizer, supports semi-definite programming, using the method of ADMM. 
+* `JuliaOpt`: A collection of pure julia solver. Works with `convex.jl`, `JuMP.jl` interface. 
+* `Convex.jl`: This is for convex problems interface, see [here](https://jump.dev/Convex.jl/stable/) for more. Usually people use stuff like: 
   * Second Order Cone representable objective 
     * SCS solver is the best
     * GLPK is for Linear programming, mixed integer programming. 
@@ -21,7 +23,7 @@ We will be doing some examples Numerical Optimzation problems using Julia.
 
 Box projected L2 norm optimization. 
 
-See [Simple_Example](./Simple_Example.jl) for more. 
+See [Simple_Example](./A%20Simple%20Example/Simple_Example.jl) for more. 
 
 ---
 ### **Lasso With L1 Norm**
