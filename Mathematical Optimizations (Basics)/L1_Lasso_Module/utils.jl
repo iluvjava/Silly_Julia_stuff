@@ -18,3 +18,11 @@ function VanderMonde(x::Array{T}, deg::Int64) where {T <: Real}
     return V
 end
 
+function PrintTitle()
+    """
+    
+        Print a beautifully formated title to the console. stdout. 
+    """
+
+
+end
