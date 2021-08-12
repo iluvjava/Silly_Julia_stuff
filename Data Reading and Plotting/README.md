@@ -5,8 +5,16 @@ Reference Resources: [Here](https://github.com/JuliaAcademy/DataScience)
 
 In this environment, we will be learning about the basics of using Julia for data processing and visualization 
 
+To read the data, we will need the following packages: 
 
+* `DelimitedFiles.jl`: This is used for reading simple files with values that are separated by a character. [here](https://docs.julialang.org/en/v1/stdlib/DelimitedFiles/) for more. 
+* `CSV.jl`: This is needed to read CSV files, and see [here](https://csv.juliadata.org/stable/) for more. 
+* `XLSX.jl`: This is needed to parse excel files into data inside julia. See [here](https://felipenoris.github.io/XLSX.jl/stable/) for more. 
+
+---
 ### **DataFrames**
+
+The package that we are going to use is the [DataFrames.jl](https://dataframes.juliadata.org/stable/) package. 
 
 reference [DataFrame Link](https://dataframes.juliadata.org/stable/)
 
@@ -35,11 +43,13 @@ This part is covered: [here](./data_manipulation_split_apply_combine.jl)
 
 Use the do block it's the coolest and easiest to remember. 
 
+
+---
 ### **Plotting**
 
 You just need more practice to get use to it.
 
-The cheatsheet is [here](./plotsjl-cheatsheet.pdf)
+The **cheatsheet** is [here](./plotsjl-cheatsheet.pdf)
 
 > However, do take notice that the plotting library for Julia has many different back ends. 
 

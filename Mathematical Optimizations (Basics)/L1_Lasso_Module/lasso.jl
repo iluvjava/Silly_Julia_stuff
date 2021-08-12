@@ -81,12 +81,15 @@ function LassoPath(this::LassoSCOP)
     end
 
     λ = λMax(A, y)
+    λs = Vector{Float64}()
     Changeλ(this, λ)
     x = SolveForx(this)
     push!(Results, x)
+    push!(λs, λ)
     MaxItr = 100
 
     while λ >= 1e-16 && MaxItr >= 0
+        push!(λs, λ)
         λ /= 2
         MaxItr -= 1
         setvalue.(this.OptModel[:x], value.(x)) 
@@ -100,7 +103,7 @@ function LassoPath(this::LassoSCOP)
         ResultsMatrix[:, II] = Results[II]
     end
 
-    return ResultsMatrix
+    return ResultsMatrix, λs
 end
 
 
@@ -136,7 +139,7 @@ function Getαβ(this::LassoSCOP, lambda::Float64)
         Get the weights and biases, for the original model (The model trained is normalized), for a 
         particular regularization value. 
     """
-
+    
     
     
 end

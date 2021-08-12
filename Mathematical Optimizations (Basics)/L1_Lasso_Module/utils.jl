@@ -18,11 +18,19 @@ function VanderMonde(x::Array{T}, deg::Int64) where {T <: Real}
     return V
 end
 
-function PrintTitle()
+function PrintTitle(mesg::String)
     """
     
         Print a beautifully formated title to the console. stdout. 
     """
-
+    width = displaysize(stdout)[2]
+    println(repeat("=" ,width))
+    print("| ")
+    println(mesg)
+    println(repeat("=" ,width))
 
 end
+
+
+
+

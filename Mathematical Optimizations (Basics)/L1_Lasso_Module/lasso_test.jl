@@ -19,16 +19,18 @@ function Test1()
 
     b = A*ones(2deg, 1)
     instance = LassoSCOP(A, b)
-    results = LassoPath(instance)
+    results, λs = LassoPath(instance)
     display(results)
+    display(λs)
     
     # Let's plot this
     global Test1Results = results
 
     ylim = (minimum(Test1Results), maximum(Test1Results))
-    ThePlot = lineplot(Test1Results[1, :], ylim=ylim, title="Lasso Path")
+    ThePlot = lineplot(log2.(λs), Test1Results[1, :], ylim=ylim, title="Lasso Path")
+
     for II ∈ 2:size(Test1Results, 1)
-        lineplot!(ThePlot, Test1Results[II, :])
+        lineplot!(ThePlot, log2.(λs), Test1Results[II, :])
     end
     display(ThePlot)
     ThePlot = heatmap(results[end:-1:begin, :])
@@ -48,13 +50,14 @@ function Test2()
     y = f(xgrid) + 0.1.*rand(N)
     V = VanderMonde(reshape(xgrid, (N, 1)), deg)
     instance = LassoSCOP(V, reshape(y, (N, 1)))
-    results = LassoPath(instance)
+    results, λs = LassoPath(instance)
+    λs = log2.(λs)
     display(results)
 
     ylim = (minimum(results), maximum(results))
-    ThePlot = lineplot(results[1, :], ylim=ylim)
+    ThePlot = lineplot(λs, results[1, :], ylim=ylim)
     for II ∈ 2:size(results, 1)
-        lineplot!(ThePlot, results[II, :])
+        lineplot!(ThePlot, λs ,results[II, :])
     end
     display(ThePlot)
 

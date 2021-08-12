@@ -25,9 +25,17 @@ Box projected L2 norm optimization.
 
 See [Simple_Example](./A%20Simple%20Example/Simple_Example.jl) for more. 
 
+We use the 2-Norm matrix vector optimization problem using the `convex.jl`
+
+The `convex.jl` interface is easier to manage and faster compare to the `JuMP.jl` interface. The later takes more time to construct a model. 
+
+`JuMP.jl` is a lower level interface compare to the `Convex.jl` interface. For `JuMP.jl` we will need to write the loss function manually instead of using the builtin interface like `Convex.jl`
+
 ---
 ### **Lasso With L1 Norm**
 
 Using the obe norm to do L1 regression analysis. 
+
+> At the time of writing this, the `Convex.jl` interface doesn't support warmstarting for `SCS`, or the `COSMO` solver. For l1 lasso path, we write it in `JuMP.jl`, it's an lower 
 
 
