@@ -35,5 +35,14 @@ end
 
 A, b = PrepareTheDataMatrix(TheData)
 
-function AnalyaisWithLasso(A::Matrix, b::Matrix )
+function AnalyaisWithLasso(A::Matrix, b::Matrix)
+    """
+        Do the lasso path thing on the data matrix, 
+        features are columns of the matrix, instances are rows. 
 
+        Returns: 
+            tuple where the first element is the data matrix and the 
+            second element is the column vector of all the regularization
+            parameter λ. 
+    """
+end
