@@ -32,5 +32,8 @@ function PrintTitle(mesg::String)
 end
 
 
+function Warn(mesg::String, newline=true) 
+    printstyled("$mesg $(newline ? '\n' : ' ')", color=:yellow)
+end
 
 

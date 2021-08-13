@@ -18,7 +18,7 @@ function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
     model = Model(with_optimizer(COSMO.Optimizer))
 
     set_optimizer_attribute(model, MOI.Silent(), true)
-    set_optimizer_attribute(model, "max_iter", 50000)
+    set_optimizer_attribute(model, "max_iter", 5000*10)
 
     @variable(model, x[1:n])
     setvalue.(x, A\y)
@@ -45,12 +45,16 @@ mutable struct LassoSCOP
     OptModel::Model
     λ::Float64
 
-    function LassoSCOP(A::Matrix, y::Matrix, λ::Float64=0.0)
+    function LassoSCOP(A::Matrix, y::Union{Matrix, Vector}, λ::Float64=0.0)
+        A = copy(A)
         m, _ = size(A)
-        @assert size(y, 1) == m && size(y, 2) == 1 ""*
+        @assert size(y, 1) == m ""*
         "The rows of X should match of the columns of y, but the size of"*
         string("X, Y is: ", size(A), " ", size(y))
-
+        y = copy(y)
+        if ndims(y) == 1
+            y = reshape(y, (length(y), 1))
+        end
         μ = mean(A, dims=1)::Matrix
         u = mean(y)
         Z = A .- μ
@@ -125,11 +129,14 @@ function SolveForx(this::LassoSCOP)
     """
         Solve for the weights of the current model, given the current configuration of the model.
     """
-    optimize!(this.OptModel)
+    OptResults = optimize!(this.OptModel)
     
     TernimationStatus = termination_status(this.OptModel)
-    @assert TernimationStatus == MOI.OPTIMAL "Terminated with non-optimal value when solving for x. "*
-    string("The status is: ", TernimationStatus)
+    # @assert TernimationStatus == MOI.OPTIMAL "Terminated with non-optimal value when solving for x. "*
+    # string("The status is: ", TernimationStatus)*"\n this is the results \n $(OptResults)"
+    if !(TernimationStatus == MOI.OPTIMAL)
+        Warn("Warning: convergence status for solver: $(TernimationStatus)")
+    end
     return value.(this.OptModel[:x])
 end
 
@@ -139,7 +146,7 @@ function Getαβ(this::LassoSCOP, lambda::Float64)
         Get the weights and biases, for the original model (The model trained is normalized), for a 
         particular regularization value. 
     """
-    
+
     
     
 end

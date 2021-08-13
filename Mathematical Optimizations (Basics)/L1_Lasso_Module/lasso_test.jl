@@ -10,12 +10,12 @@ function Test1()
     """
         Test 1, some basic test on a random matrix, copied columns of matrix. 
     """
-    deg = 2
-    N = 6
+    deg = 3
+    N = 2000
     B = rand(N, deg)
     A = fill(0.0, (N, 2deg))
     A[:, 1:deg] = B
-    A[:, deg + 1:end] = 2B.^2 + B
+    A[:, deg + 1:end] = 2B.^2 + B + 0.1.*randn(size(B))
 
     b = A*ones(2deg, 1)
     instance = LassoSCOP(A, b)

@@ -38,4 +38,4 @@ Using the obe norm to do L1 regression analysis.
 
 > At the time of writing this, the `Convex.jl` interface doesn't support warmstarting for `SCS`, or the `COSMO` solver. For l1 lasso path, we write it in `JuMP.jl`, it's an lower 
 
-
+Note: The loading of the `JuMP.jl` overhead might be outweighting the speed of the solvere. 
