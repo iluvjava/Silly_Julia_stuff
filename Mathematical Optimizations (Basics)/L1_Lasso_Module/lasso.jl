@@ -42,8 +42,11 @@ mutable struct LassoSCOP
     Z::Matrix # Starndardized Matrix
     l::Matrix # Zero mean label 
     
-    OptModel::Model
-    λ::Float64
+    OptModel::Model  # The JuMP model for getting it right. 
+    λ::Float64       # the regularization parameter. 
+
+    LassPath::Matrix
+    λs::Vector
 
     function LassoSCOP(A::Matrix, y::Union{Matrix, Vector}, λ::Float64=0.0)
         A = copy(A)
@@ -62,8 +65,6 @@ mutable struct LassoSCOP
         OptModel = MakeLassoOptimizationProblem(Z, l, λ)
         new(A, y, μ, u, Z, l, OptModel, λ)
     end
-
-
 end
 
 
@@ -106,7 +107,9 @@ function LassoPath(this::LassoSCOP)
     for II ∈ 1:length(Results)
         ResultsMatrix[:, II] = Results[II]
     end
-
+    # Store it. 
+    this.LassPath = ResultsMatrix
+    this.λs = λs
     return ResultsMatrix, λs
 end
 
@@ -129,7 +132,7 @@ function SolveForx(this::LassoSCOP)
     """
         Solve for the weights of the current model, given the current configuration of the model.
     """
-    OptResults = optimize!(this.OptModel)
+    optimize!(this.OptModel)
     
     TernimationStatus = termination_status(this.OptModel)
     # @assert TernimationStatus == MOI.OPTIMAL "Terminated with non-optimal value when solving for x. "*
