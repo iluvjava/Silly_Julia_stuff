@@ -35,6 +35,8 @@ mutable struct MyCartesianPoint
 
 end
 
+# And, a way of binding that closure with static runctions are also a pretty good approach. 
+
 
 
 
