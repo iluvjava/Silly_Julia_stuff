@@ -1,7 +1,7 @@
 using COSMO, JuMP, LinearAlgebra
 using Statistics
-import JuMP
-using UnicodePlots
+using JuMP
+import Plots as Plots
 MOI = JuMP.MathOptInterface
 
 function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
@@ -16,7 +16,7 @@ function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
     string(m, "×",  n) * string(";y: ", size(y))
     @assert λ ≤ 1 && λ ≥ 0 "Regularization λ should be between (0, 1)"
 
-    model = Model(with_optimizer(COSMO.Optimizer))
+    model = Model(with_optimizer(COSMO.Optimizer); bridge_constraints = false)
 
     set_optimizer_attribute(model, MOI.Silent(), true)
     set_optimizer_attribute(model, "max_iter", 5000*10)
@@ -46,8 +46,9 @@ mutable struct LassoSCOP
     OptModel::Model  # The JuMP model for getting it right. 
     λ::Float64       # the regularization parameter. 
 
-    LassPath::Union{Matrix, Nothing}
-    λs::Union{Vector, Nothing}
+    LassoPath::Union{Matrix, Nothing} # going along a fixed row is the fixing 
+    # the feature while varying the lambda quantity. 
+    λs::Union{Vector, Nothing} # the lambda values. 
 
     function LassoSCOP(A::Matrix, y::Union{Matrix, Vector}, λ::Float64=0.0)
         A = copy(A)
@@ -109,19 +110,44 @@ function LassoPath(this::LassoSCOP)
         ResultsMatrix[:, II] = Results[II]
     end
     # Store it. 
-    this.LassPath = ResultsMatrix
+    this.LassoPath = ResultsMatrix
     this.λs = λs
     return ResultsMatrix, λs
 end
 
-function VisualizeLassoPath(this::LassoSCOP, fname::String)
+function VisualizeLassoPath(this::LassoSCOP, 
+                            fname::Union{String, Nothing}=nothing,
+                            title::Union{String, Nothing}=nothing
+                            )
     """
-        Make a plots for the lasso path and save it. 
+        Make a plots for the lasso path and save it in the pwd. 
+
+        
     """
     @assert isdefined(this, :LassoPath) "Lasso Path not defined for the object"*
     "yet". 
     error("Haven't implemented it yet.")
+    λs = this.λs
+    Paths = this.LassoPath
+    Loggedλ = log2.(λs)
+    p1 = Plots.heatmap(Paths[end:-1:begin, :], title=title===nothing ? "Lasso Path" : title)
+    p2 = plot(Loggedλ, Paths', label=nothing)
+    Plots.xlabel!(p2, "log_2(λ)")
+    p = Plots.plot(p1, p2, layout=(2, 1))
+    Plots.plot!(size=(600, 800))
+    Plots.plot!(dpi=400)
+    Plots.savefig(p, fname===nothing ? "plot.png" : fname)
+    return
+end
+
+function CaptureImportantWeights(this::LassoSCOP, top_k=nothing)
+    """
+        Caputre the indices for the most important predictors from the 
+            regression. 
+
+    """
     # TODO: Implement this
+    
 
 end
 

@@ -27,13 +27,13 @@ function PrepareTheDataMatrix(data_frame::DataFrame)
     """
         Min, max, median and mean are assumed to be important predictor
     """
-    FeatureMatrix = data_frame[!, 2:end]
-    FeatureMatrix = Matrix(data_frame)
+    FeatureMatrix = Matrix(data_frame[!, 2:end])
     Predictants = data_frame[!, 1]
     return FeatureMatrix, Predictants
 end
 
 A, b = PrepareTheDataMatrix(TheData)
+
 
 function AnalyaisWithLasso(A::Matrix, b::Matrix)
     """
@@ -46,8 +46,10 @@ function AnalyaisWithLasso(A::Matrix, b::Matrix)
             parameter λ. 
     """
     Instance = LassoSCOP(A, b)
-    Results, λs =  AnalyaisWithLasso(Instance)
-
+    Results, λs =  LassoPath(Instance)
+    VisualizeLassoPath(Instance, "cirme-data-lassopath.png")
     
 
 end
+
+AnalyaisWithLasso(A, reshape(b, (length(b), 1))) 

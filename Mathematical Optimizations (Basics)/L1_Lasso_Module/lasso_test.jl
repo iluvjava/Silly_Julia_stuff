@@ -3,6 +3,7 @@ include("utils.jl")
 
 using Test
 using UnicodePlots
+using Plots
 
 Test1Results = 0
 
@@ -33,8 +34,10 @@ function Test1()
         lineplot!(ThePlot, log2.(λs), Test1Results[II, :])
     end
     display(ThePlot)
-    ThePlot = heatmap(results[end:-1:begin, :])
+    ThePlot = UnicodePlots.heatmap(results[end:-1:begin, :])
     display(ThePlot)
+    # Visualize the path. 
+    VisualizeLassoPath(instance)
     return true
 
 end
@@ -65,7 +68,7 @@ function Test2()
     ThePlot = lineplot(xgrid, y)
     scatterplot!(ThePlot, xgrid, YHat)
     display(ThePlot)
-    display(heatmap(results[end:-1:begin, :]))
+    display(UnicodePlots.heatmap(results[end:-1:begin, :]))
     
     return true
 end
