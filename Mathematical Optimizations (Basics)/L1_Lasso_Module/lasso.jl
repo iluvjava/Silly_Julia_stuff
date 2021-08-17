@@ -95,7 +95,7 @@ function LassoPath(this::LassoSCOP)
     push!(λs, λ)
     MaxItr = 100
 
-    while λ >= 1e-16 && MaxItr >= 0
+    while λ >= 1e-4 && MaxItr >= 0
         push!(λs, λ)
         λ /= 2
         MaxItr -= 1
