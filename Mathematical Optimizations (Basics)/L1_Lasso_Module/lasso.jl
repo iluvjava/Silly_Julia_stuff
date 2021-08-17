@@ -1,3 +1,5 @@
+
+
 using COSMO, JuMP, LinearAlgebra
 using Statistics
 using JuMP
@@ -5,30 +7,34 @@ import Plots as Plots
 import ProgressMeter as Pm
 MOI = JuMP.MathOptInterface
 
+include("utils.jl")
+
 function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
     """
         Phrase the quadratic programming problem for Lasso regularization 
         problem. 
-
+        
     """
-    # TODO: Add Progress bar here. 
     m, n = size(A)
     @assert size(y, 1) == m && size(y, 2) == 1 "the label and"* 
     " the data matrix doesn't have the maching dimension X:" * 
     string(m, "×",  n) * string(";y: ", size(y))
     @assert λ ≤ 1 && λ ≥ 0 "Regularization λ should be between (0, 1)"
 
+
+    Pb = Pm.ProgressUnknown("Building Optimization Model: ", spinner=true)
+
     model = Model(with_optimizer(COSMO.Optimizer); bridge_constraints = false)
 
     set_optimizer_attribute(model, MOI.Silent(), true)
     set_optimizer_attribute(model, "max_iter", 5000*10)
 
-    @variable(model, x[1:n])
-    setvalue.(x, A\y)
-    @variable(model, η[1:n])
-    @constraint(model, -η .<= x)
-    @constraint(model, x .<= η)
-    @objective(model, Min, λ*sum(η) + sum((A*x - y).^2)) 
+    @variable(model, x[1:n]); Pm.next!(Pb)
+    setvalue.(x, A\y); Pm.next!(Pb)
+    @variable(model, η[1:n]); Pm.next!(Pb)
+    @constraint(model, -η .<= x); Pm.next!(Pb)
+    @constraint(model, x .<= η); Pm.next!(Pb)
+    @objective(model, Min, λ*sum(η) + sum((A*x - y).^2)); Pm.finish!(Pb)
 
     return model
 
@@ -68,7 +74,8 @@ mutable struct LassoSCOP
         Z = A .- μ
         l = y .- u
         OptModel = MakeLassoOptimizationProblem(Z, l, λ)
-        new(A, y, μ, u, Z, l, OptModel, λ)
+
+        return new(A, y, μ, u, Z, l, OptModel, λ)
     end
 end
 
@@ -98,10 +105,7 @@ function LassoPath(this::LassoSCOP, tol::Float64=1e-8)
         return maximum(abs.(ToMax))
     end
 
-    # TODO: Add Progress Bar. 
-    # TODO: Invalid Tolerance Parameter. 
-    # Setting the tolerance to native or zero should be interepted as "don't use tolerant" and use the value 
-    # of \lambda instead
+
     λ = λMax(A, y)
     λs = Vector{Float64}()
     Changeλ(this, λ)
@@ -110,16 +114,19 @@ function LassoPath(this::LassoSCOP, tol::Float64=1e-8)
     push!(Results, x)
     push!(λs, λ)
     MaxItr = 100
-    while dx >= tol && MaxItr >= 0  
+    pb = Pm.ProgressThresh(tol, "inf norm of δx: ")
+    while dx >= tol && MaxItr >= 0
         push!(λs, λ)
         λ /= 2
         MaxItr -= 1
-        setvalue.(this.OptModel[:x], value.(x)) 
+        setvalue.(this.OptModel[:x], value.(x)) # warm start! 
         Changeλ(this, λ)
         x = SolveForx(this)
         push!(Results, value.(x))
         dx = norm(Results[end - 1] - Results[end], Inf)
+        Pm.update!(pb, dx)
     end
+
 
     ResultsMatrix = zeros(length(x), length(Results))
     for II ∈ 1:length(Results)
@@ -138,7 +145,6 @@ function VisualizeLassoPath(this::LassoSCOP,
                             )
     """
         Make a plots for the lasso path and save it in the pwd. 
-
         
     """
     @assert isdefined(this, :LassoPath) "Lasso Path not defined for the object"*
@@ -158,15 +164,36 @@ function VisualizeLassoPath(this::LassoSCOP,
 end
 
 
-function CaptureImportantWeights(this::LassoSCOP, top_k=nothing)
+function CaptureImportantWeights(
+                                this::LassoSCOP, 
+                                top_k::Union{Float64, Int64} = 0.5, 
+                                threshold::Float64=1e-10
+                                )
     """
         Caputre the indices for the most important predictors from the 
-            regression. 
-
+        regression. Returns the indices of the important weights. 
+        
+        ---
+        **this::LassoSCOP**: 
+            An instance of the type LassoSCOP
+        
     """
     # TODO: Implement this
-    
+    @assert isdefined(this, :LassoPath) "Lasso Path not defined for this"*
+    "Object yet. "
+    @assert top_k >= 0 "this parameters, should be a positive number"
+    @assert threshold >= 0 "This parameters shouold be a positive number"
 
+    Paths = this.LassoPath
+    top_k == ceil(size(Paths, 1)*0.5)
+    for JJ in size(Paths, 2)
+        Col = view(:, JJ)
+        NonNegative = sum(Col >= threshold)
+        # rank them by abs and returns the indices for top k weights
+        if NonNegative >= top_k 
+                
+        end
+    end
 end
 
 
@@ -175,7 +202,7 @@ function Changeλ(this::LassoSCOP, λ)
         Change the Lasso regularizer of the current model 
     """
     model = this.OptModel
-    x = model[:x]
+    x = model[:x]  # objects can be indexed with symbols! 
     η = model[:η]
     y = this.l
     A = this.Z
@@ -192,12 +219,12 @@ function SolveForx(this::LassoSCOP)
     TernimationStatus = termination_status(this.OptModel)
     # @assert TernimationStatus == MOI.OPTIMAL "Terminated with non-optimal value when solving for x. "*
     # string("The status is: ", TernimationStatus)*"\n this is the results \n $(OptResults)"
-
-    # TODO: Optimality conditions. 
-    # Check it here. Make sure it's good enough to pass the solution. 
-
+    
     if !(TernimationStatus == MOI.OPTIMAL)
-        Warn("Warning: convergence status for solver: $(TernimationStatus)")
+        Warn("\nWarning: convergence status for solver: $(TernimationStatus)")
+        Warn("Current Value λ: $(this.λ)")
+        PrintTitle("Here is the summary for the solution: ")
+        display(solution_summary(this.OptModel))
     end
     return value.(this.OptModel[:x])
 end
@@ -213,3 +240,4 @@ function Getαβ(this::LassoSCOP, lambda::Float64)
 end
 
 
+# TODO: Override Base.show for this LASSOPath TYPE. 
