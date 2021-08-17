@@ -185,9 +185,9 @@ function CaptureImportantWeights(
     @assert threshold >= 0 "This parameters shouold be a positive number"
 
     Paths = this.LassoPath
-    top_k == ceil(size(Paths, 1)*0.5)
+    top_k::Int64 = top_k <= 1 ? ceil(size(Paths, 1)*0.5) : round(top_k)
     for JJ in size(Paths, 2)
-        Col = view(:, JJ)
+        Col = view(Paths, :, JJ)
         NonNegative = sum(abs.(Col) .>= threshold)
         # rank them by abs and returns the indices for top k weights
         if NonNegative >= top_k 
@@ -195,6 +195,7 @@ function CaptureImportantWeights(
             return Indices[begin:top_k]
         end
     end
+    return Vector{Int64}()
 end
 
 

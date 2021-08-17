@@ -41,7 +41,9 @@ function Test1()
     VisualizeLassoPath(instance)
 
     # Finding the important weights for it. 
-    
+    PrintTitle("These are the important weights: ")
+    WeightsIndices = CaptureImportantWeights(instance)
+    println(WeightsIndices)
     return true
 
 end
