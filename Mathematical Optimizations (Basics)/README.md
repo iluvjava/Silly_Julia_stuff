@@ -39,3 +39,6 @@ Using the obe norm to do L1 regression analysis.
 > At the time of writing this, the `Convex.jl` interface doesn't support warmstarting for `SCS`, or the `COSMO` solver. For l1 lasso path, we write it in `JuMP.jl`, it's an lower 
 
 Note: The loading of the `JuMP.jl` overhead might be outweighting the speed of the solvere. 
+
+
+There are many other ways to solve the L1-Norm reglarization pronlem, But here we will be solving it using SCOP, we will treat it as a quadratic programming and then use ADMM based solver `COSMO.jl` .

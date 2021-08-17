@@ -2,6 +2,7 @@ using COSMO, JuMP, LinearAlgebra
 using Statistics
 using JuMP
 import Plots as Plots
+import ProgressMeter as Pm
 MOI = JuMP.MathOptInterface
 
 function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
@@ -10,6 +11,7 @@ function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
         problem. 
 
     """
+    # TODO: Add Progress bar here. 
     m, n = size(A)
     @assert size(y, 1) == m && size(y, 2) == 1 "the label and"* 
     " the data matrix doesn't have the maching dimension X:" * 
@@ -56,6 +58,7 @@ mutable struct LassoSCOP
         @assert size(y, 1) == m ""*
         "The rows of X should match of the columns of y, but the size of"*
         string("X, Y is: ", size(A), " ", size(y))
+        
         y = copy(y)
         if ndims(y) == 1
             y = reshape(y, (length(y), 1))
@@ -70,9 +73,17 @@ mutable struct LassoSCOP
 end
 
 
-function LassoPath(this::LassoSCOP)
+function LassoPath(this::LassoSCOP, tol::Float64=1e-8)
     """
-        Analyze the Lasso Problem. 
+        Analyze the Lasso Problem by drawing a lasso path. It will start with 
+        a parameter that will make all predictors zero and then solve it 
+        iterative by chopping the regularization λ by half each iteration. 
+
+        **this**: 
+            An instance of the LassoSCOP
+        **tol**: 
+            If the infinity norm of vector of the change in the weights is 
+            less than this quantity, then it stops and return all the results. 
 
     """
 
@@ -87,15 +98,19 @@ function LassoPath(this::LassoSCOP)
         return maximum(abs.(ToMax))
     end
 
+    # TODO: Add Progress Bar. 
+    # TODO: Invalid Tolerance Parameter. 
+    # Setting the tolerance to native or zero should be interepted as "don't use tolerant" and use the value 
+    # of \lambda instead
     λ = λMax(A, y)
     λs = Vector{Float64}()
     Changeλ(this, λ)
     x = SolveForx(this)
+    dx = Inf
     push!(Results, x)
     push!(λs, λ)
     MaxItr = 100
-
-    while λ >= 1e-4 && MaxItr >= 0
+    while dx >= tol && MaxItr >= 0  
         push!(λs, λ)
         λ /= 2
         MaxItr -= 1
@@ -103,6 +118,7 @@ function LassoPath(this::LassoSCOP)
         Changeλ(this, λ)
         x = SolveForx(this)
         push!(Results, value.(x))
+        dx = norm(Results[end - 1] - Results[end], Inf)
     end
 
     ResultsMatrix = zeros(length(x), length(Results))
@@ -114,6 +130,7 @@ function LassoPath(this::LassoSCOP)
     this.λs = λs
     return ResultsMatrix, λs
 end
+
 
 function VisualizeLassoPath(this::LassoSCOP, 
                             fname::Union{String, Nothing}=nothing,
@@ -140,6 +157,7 @@ function VisualizeLassoPath(this::LassoSCOP,
     return
 end
 
+
 function CaptureImportantWeights(this::LassoSCOP, top_k=nothing)
     """
         Caputre the indices for the most important predictors from the 
@@ -161,7 +179,7 @@ function Changeλ(this::LassoSCOP, λ)
     η = model[:η]
     y = this.l
     A = this.Z
-    @objective(model, Min, λ*sum(η) + sum((A*x - y).^2)) 
+    @objective(model, Min, λ*sum(η) + sum((A*x - y).^2))
     
 end
 
@@ -171,10 +189,13 @@ function SolveForx(this::LassoSCOP)
         Solve for the weights of the current model, given the current configuration of the model.
     """
     optimize!(this.OptModel)
-    
     TernimationStatus = termination_status(this.OptModel)
     # @assert TernimationStatus == MOI.OPTIMAL "Terminated with non-optimal value when solving for x. "*
     # string("The status is: ", TernimationStatus)*"\n this is the results \n $(OptResults)"
+
+    # TODO: Optimality conditions. 
+    # Check it here. Make sure it's good enough to pass the solution. 
+
     if !(TernimationStatus == MOI.OPTIMAL)
         Warn("Warning: convergence status for solver: $(TernimationStatus)")
     end

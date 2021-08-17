@@ -47,7 +47,7 @@ function AnalyaisWithLasso(A::Matrix, b::Matrix)
     """
     Instance = LassoSCOP(A, b)
     Results, λs =  LassoPath(Instance)
-    VisualizeLassoPath(Instance, "cirme-data-lassopath.png")
+    VisualizeLassoPath(Instance, "cirme-data-lassopath-$(rand(1:999999999)).png")
     
 
 end
