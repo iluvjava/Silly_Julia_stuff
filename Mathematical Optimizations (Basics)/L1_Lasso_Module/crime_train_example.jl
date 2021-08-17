@@ -45,4 +45,9 @@ function AnalyaisWithLasso(A::Matrix, b::Matrix)
             second element is the column vector of all the regularization
             parameter λ. 
     """
+    Instance = LassoSCOP(A, b)
+    Results, λs =  AnalyaisWithLasso(Instance)
+
+    
+
 end

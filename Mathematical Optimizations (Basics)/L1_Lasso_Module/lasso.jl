@@ -1,6 +1,7 @@
 using COSMO, JuMP, LinearAlgebra
 using Statistics
 import JuMP
+using UnicodePlots
 MOI = JuMP.MathOptInterface
 
 function MakeLassoOptimizationProblem(A::Matrix, y::Matrix, λ::Float64)
@@ -45,8 +46,8 @@ mutable struct LassoSCOP
     OptModel::Model  # The JuMP model for getting it right. 
     λ::Float64       # the regularization parameter. 
 
-    LassPath::Matrix
-    λs::Vector
+    LassPath::Union{Matrix, Nothing}
+    λs::Union{Vector, Nothing}
 
     function LassoSCOP(A::Matrix, y::Union{Matrix, Vector}, λ::Float64=0.0)
         A = copy(A)
@@ -113,6 +114,17 @@ function LassoPath(this::LassoSCOP)
     return ResultsMatrix, λs
 end
 
+function VisualizeLassoPath(this::LassoSCOP, fname::String)
+    """
+        Make a plots for the lasso path and save it. 
+    """
+    @assert isdefined(this, :LassoPath) "Lasso Path not defined for the object"*
+    "yet". 
+    error("Haven't implemented it yet.")
+    # TODO: Implement this
+
+end
+
 
 function Changeλ(this::LassoSCOP, λ)
     """
@@ -149,8 +161,7 @@ function Getαβ(this::LassoSCOP, lambda::Float64)
         Get the weights and biases, for the original model (The model trained is normalized), for a 
         particular regularization value. 
     """
-
-    
+    error("Not yet implemented. ")
     
 end
 
