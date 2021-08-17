@@ -178,7 +178,7 @@ function CaptureImportantWeights(
             An instance of the type LassoSCOP
         
     """
-    # TODO: Implement this
+    # TODO: test this 
     @assert isdefined(this, :LassoPath) "Lasso Path not defined for this"*
     "Object yet. "
     @assert top_k >= 0 "this parameters, should be a positive number"
@@ -188,10 +188,11 @@ function CaptureImportantWeights(
     top_k == ceil(size(Paths, 1)*0.5)
     for JJ in size(Paths, 2)
         Col = view(:, JJ)
-        NonNegative = sum(Col >= threshold)
+        NonNegative = sum(abs.(Col) .>= threshold)
         # rank them by abs and returns the indices for top k weights
         if NonNegative >= top_k 
-                
+            Indices = sortperm(abs.(Col), rev=true)
+            return Indices[begin:top_k]
         end
     end
 end

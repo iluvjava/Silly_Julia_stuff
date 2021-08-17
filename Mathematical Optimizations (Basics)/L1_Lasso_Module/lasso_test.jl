@@ -36,8 +36,12 @@ function Test1()
     display(ThePlot)
     ThePlot = UnicodePlots.heatmap(results[end:-1:begin, :])
     display(ThePlot)
+
     # Visualize the path. 
     VisualizeLassoPath(instance)
+
+    # Finding the important weights for it. 
+    
     return true
 
 end
