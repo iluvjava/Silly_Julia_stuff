@@ -132,6 +132,7 @@ function LassoPath(this::LassoSCOP, tol::Float64=1e-8)
     for II ∈ 1:length(Results)
         ResultsMatrix[:, II] = Results[II]
     end
+
     # Store it. 
     this.LassoPath = ResultsMatrix
     this.λs = λs
@@ -242,4 +243,4 @@ function Getαβ(this::LassoSCOP, lambda::Float64)
 end
 
 
-# TODO: Override Base.show for this LASSOPath TYPE. 
+# TODO: Override Base.show for this LASSOPath TYPE.
