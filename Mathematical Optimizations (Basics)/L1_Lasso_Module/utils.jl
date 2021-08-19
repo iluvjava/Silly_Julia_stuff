@@ -27,8 +27,7 @@ function PrintTitle(mesg::String)
     println(repeat("=" ,width))
     print("| ")
     println(mesg)
-    println(repeat("=" ,width))
-
+    println(repeat("=" ,width)) 
 end
 
 

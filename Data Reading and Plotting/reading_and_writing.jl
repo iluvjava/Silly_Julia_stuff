@@ -36,5 +36,3 @@ display(describe(C))
 # file name, an instance of dataframe. 
 # Use ?CSV.write on julia REPL for more information. 
 CSV.write("programminglange_CSV.csv", DataFrame(P, :auto))
-
-
