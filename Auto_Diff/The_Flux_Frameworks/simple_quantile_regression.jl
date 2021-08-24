@@ -7,9 +7,7 @@ mutable struct QuantileRegression
     q::Number
 
     # the gradient tape
-    g::Flux.Zygote.Grads
-
-    
+    ŷ::VecOrMat
 
     function QuantileRegression(features_in::Int64, dim_out::Int64; q::Union{Number, Nothing}=nothing)
         W = rand(features_in, dim_out)
@@ -25,6 +23,7 @@ end
 
 
 function Predict(this::QuantileRegression, X::Matrix)
+
     return X*this.W .+ this.b
 end
 
@@ -44,17 +43,18 @@ end
 """
     Get the gradient, give the data X, and labels y. 
 """
-function ∇(this::QuantileRegression, X::Matrix, y::VecOrMat)    
-    this.g = gradient(()-> Loss(this, X, y), params(this.W, this.b))
-    this.X = X
-    this.y = y
-    return [this.g[p] for p ∈ this.g.params]
+function ∇(this::QuantileRegression, X::Matrix, y::VecOrMat)::Flux.Zygote.Grads
+    # Implicit Differential on hidden parameters. 
+    g = gradient(()-> Loss(this, X, y), params(this.W, this.b))
+    return g
 end
 
 
 """
     Train the model with classic momentum and armijo line search, adaptive 
-    reset and stepsize adjustment. 
+    reset and stepsize adjustment. This is needed because loss function is 
+    non-smooth and weakly convex. 
+
 """
 function Train!(
         this::QuantileRegression,

@@ -29,7 +29,7 @@ function SpeedTest()
     A += (rand(N, N) .- 0.5).*im
     H = similar(A, ComplexF64)
     Q = similar(A, ComplexF64)  
-    timetook = @elapsed for _ in 1:rep   
+    @time timetook = @elapsed for _ in 1:rep   
         Q, H = ArnoldiIterate!(A, Q, H)
     end
     println(string("Total time took to decompose ",

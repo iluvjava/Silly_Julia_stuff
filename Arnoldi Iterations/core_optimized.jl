@@ -14,14 +14,15 @@ upper Hessenberg Form.
     m, n = size(A)
     @assert m == n "A needs to be a square matrix"
     @assert size(A) == size(Q) == size(H) "A, Q, H should have the same size"
-    q1 = rand(n, 1)  + rand(n, 1)*im 
-    q1 = q1./norm(q1)
-    Q[:, 1] = q1
+    q1 = rand(n)  + rand(n)*im 
+    q1 ./= norm(q1)
+    Q[:, 1] .= q1
+    q = similar(q1)
     for k in 2:n + 1
-        q = A*Q[:, k - 1]
+        q .= A*Q[:, k - 1]
         # can be optimized?
-        @simd for l in 1:k - 1
-            H[l, k - 1] = Q[:, l]'*q
+        for l in 1:k - 1
+            H[l, [k - 1]] .= Q[:, l]'*q
             q -= H[l, k - 1].* Q[:, l]
         end
         # H[1:k - 1, k - 1] = Q[:, 1:k - 1]'*q

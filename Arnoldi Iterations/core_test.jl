@@ -26,7 +26,7 @@ function SpeedTest()
     rep = 10
     A = rand(N, N) .- 0.5
     A += (rand(N, N) .- 0.5).*im 
-    timetook = @elapsed for _ in 1:rep   
+    @time timetook = @elapsed for _ in 1:rep   
         Q, H = ArnoldiIterate(A)
     end
     println(string("Total time took to decompose ",
