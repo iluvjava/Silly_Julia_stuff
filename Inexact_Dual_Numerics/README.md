@@ -36,7 +36,8 @@ There are several way to do it:
 * Compare the $a$, original number and ignore the error bounds for the number. 
 * Inpose strict comparison, give error if 2 numbers technically intersect with each other. 
 
+---
+### **Modeling Cancellation Errors** 
 
-
-
+This is current not covered. 
 
