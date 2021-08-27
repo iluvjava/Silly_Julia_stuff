@@ -4,16 +4,16 @@ struct InexactFloat <: Real
     ϵ::Float64 # Relative Error
 
     function InexactFloat(a::Float64)
-        ϵ = 2^(-54)
-        δ = abs(a)*ϵ
+        δ = eps(Float64)*abs(a)/2
+        ϵ = δ/abs(a)
         x = a
         return new(x, δ, ϵ)
     end
     
     function InexactFloat(a::Float64, ϵ::Float64)
-        x = abs(a)
-        ϵ = max(abs(ϵ), 2^(-54))
-        δ = ϵ*abs(a)
+        x = a
+        ϵ = max(abs(ϵ), eps(Float64)/2)
+        δ = abs(a)*ϵ
         return new(x, δ, ϵ)
     end
 end
@@ -26,26 +26,24 @@ function Base.:+(a::InexactFloat, b::InexactFloat)
         return b + a  # WLOG: a > b
     end
     c = a.x + b.x
-    δ = a.δ + b.δ + (b.x - (c - a.x)) # compensation, kahan summation
+    # use rel error and consider loss of significance
+    # ϵ = (a.ϵ*a.x + b.ϵ*b.x)/(a.x + b.x) + 2^(-54)
+    δ = a.δ + b.δ + eps(Float64)*abs(a.x)/4
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
 function Base.:+(a::InexactFloat, b::Real)
     c = a.x + b
-    δ = a.δ
-    ϵ = δ/abs(c)
-    return InexactFloat(c, ϵ)
+    return InexactFloat(c, a.ϵ)
 end
 function Base.:+(b::Real, a::InexactFloat)
     c = a.x + b
-    δ = a.δ
-    ϵ = δ/abs(c)
-    return InexactFloat(c, ϵ)
+    return InexactFloat(c, a.ϵ)
 end
 
 function Base.:-(a::InexactFloat, b::InexactFloat)
     c = a.x - b.x
-    δ = a.δ + b.δ
+    δ = a.δ + b.δ # + eps(Float64)*abs(a.x)/2
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
@@ -127,4 +125,8 @@ end
 
 function Base.show(io::IO, this::InexactFloat)
     show(io, "$(this.x) ± $(this.δ)")
+end
+
+function Base.:∈(a::Number, b::InexactFloat)
+    return a <= b.x + b.δ && a >= b.x - b.δ
 end
