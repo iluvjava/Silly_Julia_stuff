@@ -9,5 +9,8 @@ We wish to applish the task of modeling error with the scientific notation syste
 
 Machine Epsilon for Float64 is $2^{-54}$
 
+These errors are intrinsic, carried by multiplication. We need to monitor the hehavior of floating points down to binary level to track the propagation of the error during its computations. 
 
-These errors are intrinsic, carried by multiplication. 
+
+
+
