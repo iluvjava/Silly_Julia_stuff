@@ -1,14 +1,15 @@
 mutable struct Callable
-
-
+    field
+    function Callable() 
+        new(1)
+    end
 end
 
 (::Callable)() = println("bruh, good call. ")
-function (::Callable)(arg::Any)
-    println("bruh, good call with type $(typeof(arg))")
+function (this::Callable)(arg::Any)
+    println("bruh, good call with type $(typeof(arg)), this: $(this)")
 end
 
-function (::Callable)func(arg::Any)
-    println("bruh, good call with type $(typeof(arg))")
-end
+
+
 
