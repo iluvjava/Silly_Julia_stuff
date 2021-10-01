@@ -24,8 +24,16 @@ mutable struct OrthoMin
 end
 
 function (this::OrthoMin)(j::Int64=-1)
+    A, b, x0 = this.A, this.b, this.x0
+    r, x, p, s = this.r, this.x, this.p, this.s
     if this.itr == 0 # initialization
-        
+        r[0] = b - A(x0)
+        x[0] = x[0]
+        p[0] = r[0]
+        s[0] = A(p[0])
+    end
+    for KK ∈ this.itr + 1:this.itr + j
+
     end
 end
 
