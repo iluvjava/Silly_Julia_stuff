@@ -33,7 +33,9 @@ function (this::OrthoMin)(j::Int64=-1)
         s[0] = A(p[0])
     end
     for KK ∈ this.itr + 1:this.itr + j
-
+        for LL ∈ 1:KK
+            
+        end
     end
 end
 

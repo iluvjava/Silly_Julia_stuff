@@ -4,7 +4,7 @@
 
 import Logging
 using LinearAlgebra
-
+using Test
 
 function OrthoMin2(A, b, x0; maxitr::Int64=1000, ϵ=1e-10, verbose::Bool=false)
     """
@@ -41,10 +41,10 @@ function OrthoMin2(A, b, x0; maxitr::Int64=1000, ϵ=1e-10, verbose::Bool=false)
             print("Residual: $(convert(Float64, NormR)); ")
             println("s-norm: $(convert(Float64,NormS));")
         end
-        if isnan(NormR) || isinf(NormR)
+        if isnan(NormS) || isinf(NormS)
             println("Pause!")
-            Logging.@warn("The residual is nan, or inf, and zero is not in the field of value of x")
-            throw(ErrorException("The residual blowed up"))
+            Logging.@warn("The norm of s is inf or nan and zero is not in the field of value of x")
+            throw(ErrorException("Stuff Blowed up."))
         end
         if NormS < ϵ 
             return x[KK]
@@ -54,28 +54,38 @@ function OrthoMin2(A, b, x0; maxitr::Int64=1000, ϵ=1e-10, verbose::Bool=false)
     return x[maxitr]
 end
 
-
 function TestIt1(N)
-    A = diagm(rand(N))*0.1 .+ 1
+    A = diagm(rand(N)) .+ 1
     println("Test1, positive diagonal matrix with maxitr $N, square matrix of size $N")
-    OrthoMin2((x)-> A*x, ones(N), rand(N); verbose=true, maxitr=N)
+    OrthoMin2((x)-> A*x, ones(N), rand(N); verbose=true, maxitr=2*N)
     println("Finished.")
     println()
+    return true
 end
 
 
 function TestIt2(N)
+    println("Test2, positive diagonam square matrix with size $N with rational arithmetic")
     A = diagm(rand(N)) .+ 1
     A = convert(Matrix{Rational{BigInt}}, A)
     b = convert(Vector{Rational{BigInt}}, rand(N))
     res = OrthoMin2((x)-> A*x, b, b; verbose=true, maxitr=N)
     display(convert(Vector{Float64}, res))
+    return true
 end
 
 
 function TestIt3(N)
-
+    A = rand(N, N)
+    A .+= (A|>x->reshape(x, length(x))|>x->sum(x, dims=1)|>diagm)
+    println("Test3, random positive with maxitr $N, square matrix of size $N")
+    OrthoMin2((x)-> A*x, ones(N), rand(N); verbose=true, maxitr=1000)
+    println("Finished.")
+    println()
 end
 
-TestIt1(10)  # works ok... 
-TestIt2(30)
+@testset "Basic" begin
+    @test TestIt1(10)  # works ok... 
+    @test TestIt2(10)
+    @test TestIt3(10)    
+end
