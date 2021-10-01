@@ -29,6 +29,7 @@ function (this::OrthoMin2)(j::Int64=1)
         p[0] = r[0]
         x[0] = x0
     end
+
     for KK ∈ this.itrCount + 1:this.itrCount + j
         Ap = A(p[KK - 1])
         ApAp = Ap⋅Ap
@@ -42,14 +43,15 @@ function (this::OrthoMin2)(j::Int64=1)
         β = (A(r[KK])⋅Ap)/(ApAp)
         p[KK] = r[KK] - β*p[KK-1]
     end
-    return x[j]
+    
+    Result = x[this.itrCount + j]
+    this.itrCount = this.itrCount + j
+    return Result
 end
 
 function GetResidualNorms(this::OrthoMin2)
     return values(this.r)|>collect.|>x->x⋅x.|>abs.|>sqrt
 end
-
-
 
 function Test1(N, j)
     # Λ = diagm(rand(N)) .+ 1
