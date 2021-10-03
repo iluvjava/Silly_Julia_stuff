@@ -4,7 +4,6 @@
 
 using LinearAlgebra
 using Logging
-
 mutable struct OrthoMin2
     A::Function
     b

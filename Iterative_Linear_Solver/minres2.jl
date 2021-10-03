@@ -6,7 +6,11 @@ import Logging
 using LinearAlgebra
 using Test
 
-function OrthoMin2(A, b, x0; maxitr::Int64=1000, ϵ=1e-10, verbose::Bool=false)
+function OrthoMin2(
+    A, 
+    b, 
+    x0; 
+    maxitr::Int64=1000, ϵ=1e-10, verbose::Bool=false)
     """
         implementation
     
