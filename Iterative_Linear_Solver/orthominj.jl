@@ -9,7 +9,6 @@
 using Logging
 using LinearAlgebra
 
-
 mutable struct OrthoMin
     
     A::Function # linear operator, please don't passing mutating linear operator. 
@@ -43,7 +42,6 @@ mutable struct OrthoMin
 end
 
 
-
 function (this::OrthoMin)()
     # Does one exact iteration of orthomin j. 
     prj(x, y) = (dot(x,y))/(dot(y, y))
@@ -53,7 +51,7 @@ function (this::OrthoMin)()
     if this.itr == 0  # initialization
         push!(r, b - A(x0))
         push!(x, x0)
-        push!(p, copy(r[1]))
+        push!(p, r[1])
         push!(s, A(r[1]))
     end
     a = prj(r[end], s[end])
@@ -96,7 +94,8 @@ end
 function Test1(N)
     A = diagm(rand(N) .- 0.5)
     b = rand(N)
-    Instance = OrthoMin(A, b, b, storage_size=-1)
+    x0 = (A\b) + randn(N)*1e-1
+    Instance = OrthoMin(A, b, x0, storage_size=-1)
     for II ∈ 1:N
         Instance()
     end
@@ -104,4 +103,4 @@ function Test1(N)
     Instance|>GetAllResidualMeasure|>display
 end
 
-Test1(100)
+Test1(10)
