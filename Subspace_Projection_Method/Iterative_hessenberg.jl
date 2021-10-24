@@ -10,21 +10,23 @@ mutable struct IterativeHessenberg
     Q::Vector  # vector of orthogonal vector
     r0
     x0
+    maxK::Int64
     
-    function IterativeHessenberg(A::Function, b, x0)
+    function IterativeHessenberg(A::Function, b; x0=nothing, max_k=typemax(Int64))
         this = new()
         this.A = A
         this.b = b
-        this.x0 = x0
-        this.r0 = b - A(x0)
+        this.x0 = x0 === nothing ? b : x0
+        this.r0 = b - A(this.x0)
         this.H = Vector{Vector{Number}}()
         this.Q = Vector{typeof(b)}()
         push!(this.Q, this.r0./sqrt(dot(this.r0, this.r0)))
+        this.maxK = max_k
         return this
     end
 
-    function IterativeHessenberg(A::Matrix, b::VecOrMat)
-        this = IterativeHessenberg((x) -> A*x, b, b)
+    function IterativeHessenberg(A::Matrix, b::VecOrMat; x0=nothing, max_k=typemax(Int64))
+        this = IterativeHessenberg((x) -> A*x, b; x0=x0, max_k=max_k)
         return this
     end
 
@@ -43,6 +45,10 @@ function (this::IterativeHessenberg)()
     push!(h, sqrt(dot(u, u)))
     push!(this.H, h)
     push!(Q, u./h[end])
+    
+    if length(Q) > this.maxK
+        popfirst!(Q)
+    end
     return Q[end], this.H[end]
 end
 
@@ -53,13 +59,19 @@ function GetHessenberMatrix(this::IterativeHessenberg)
     m = n + 1
     H = Matrix{typeof(this.H[1][1])}(undef, m, n)
     for IdxJ ∈ 1:n
-        for IdxI ∈ 1:length(this.H[IdxJ])
-            H[IdxI, IdxJ] = this.H[IdxJ][IdxI]
+        for IdxI ∈ (IdxJ + 1):-1:1
+            OffsetFromDiag = IdxJ + 1 - IdxI
+            if OffsetFromDiag < length(this.H[IdxJ])
+                H[IdxI, IdxJ] = this.H[IdxJ][end - OffsetFromDiag]
+            else
+                H[IdxI, IdxJ] = 0
+            end
         end
-        for IdxI ∈ length(this.H[IdxJ])+1:m 
+        for IdxI ∈ (IdxJ + 2):m  # zeros below everything. 
             H[IdxI, IdxJ] = 0
         end
     end
+    
     return H
 end
 
@@ -73,22 +85,20 @@ end
 
 
 # ==============================================================================
-
-
 # A brief test. 
-A = rand(3,3)
-ib = IterativeHessenberg(A, rand(3,1))
-ib()
-ib()
-ib()
-Q = GetOrthogonalMatrix(ib)
-println("The Q matrix is: ")
-display(Q)
-H = GetHessenberMatrix(ib)
-println("The H matrix is: ")
-display(H)
-println("Testing the Recurrence: AQ_{k-1} = Q_{k}H") 
-println("AQ_{k-1} is: ")
-display(A*Q[:, 1:end-1])
-println("Q_{k}H is:")
-display(Q*H)
+# A = rand(3,3)
+# ib = IterativeHessenberg(A, rand(3,1))
+# ib()
+# ib()
+# ib()
+# Q = GetOrthogonalMatrix(ib)
+# println("The Q matrix is: ")
+# display(Q)
+# H = GetHessenberMatrix(ib)
+# println("The H matrix is: ")
+# display(H)
+# println("Testing the Recurrence: AQ_{k-1} = Q_{k}H") 
+# println("AQ_{k-1} is: ")
+# display(A*Q[:, 1:end-1])
+# println("Q_{k}H is:")
+# display(Q*H)
