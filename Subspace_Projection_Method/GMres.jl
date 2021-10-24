@@ -37,5 +37,17 @@ function GetFullRotationMatrix(this::CumulativePlaneRotation)
     
 end
 
+function GetFirstColumnOfRotationMatrix(this::CumulativePlaneRotation)
+
+end
+
+"""
+    Load in sussesive 2 rows of the H matrix, and then store the 
+    triangularization process for it. 
+"""
+function (this::CumulativePlaneRotation)(a::Real, b::Real)
+    
+end
+
 
 

@@ -27,7 +27,12 @@ mutable struct IterativeHessenberg
         return this
     end
 
-    function IterativeHessenberg(A::Matrix, b::VecOrMat; x0=nothing, max_k=typemax(Int64))
+    function IterativeHessenberg(
+            A::Matrix, 
+            b::VecOrMat; 
+            x0=nothing, 
+            max_k=typemax(Int64)
+        )
         this = IterativeHessenberg((x) -> A*x, b; x0=x0, max_k=max_k)
         return this
     end
