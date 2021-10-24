@@ -70,9 +70,29 @@ function Test4(N=10)
 
 end
 
+function Test5(N=10)
+    @info "Testing Limited Memory Arnoldi Decomposition with a complex matrix"
+    A = rand(N, N) + rand(N, N)im
+    ih = IterativeHessenberg(A, rand(N, 1)im; max_k=3)
+    for II = 1:N-2
+        ih()
+    end
+    H = GetHessenberMatrix(ih)
+    println("Limited Memory H matrix: ")
+    display(H)
+    Q = GetOrthogonalMatrix(ih)
+    println("Limited Memory Q Matrix")
+    display(Q)
+    return true
+
+end
+
+
+
 @testset "Basic Tests" begin
     @test Test1()
     @test Test2()
     @test Test3()
     @test Test4()
+    @test Test5()
 end

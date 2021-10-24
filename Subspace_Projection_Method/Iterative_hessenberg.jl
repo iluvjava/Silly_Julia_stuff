@@ -2,6 +2,8 @@ using LinearAlgebra
 
 # ==============================================================================
 # ITERATIVE HESSENBERG
+#   * Type of A, and type of b has to be the same. For example, if A is complex, 
+#   then b vector/matrix has to be complex too. 
 # ==============================================================================
 mutable struct IterativeHessenberg
     A::Function
@@ -84,21 +86,3 @@ function GetOrthogonalMatrix(this::IterativeHessenberg)
 end
 
 
-# ==============================================================================
-# A brief test. 
-# A = rand(3,3)
-# ib = IterativeHessenberg(A, rand(3,1))
-# ib()
-# ib()
-# ib()
-# Q = GetOrthogonalMatrix(ib)
-# println("The Q matrix is: ")
-# display(Q)
-# H = GetHessenberMatrix(ib)
-# println("The H matrix is: ")
-# display(H)
-# println("Testing the Recurrence: AQ_{k-1} = Q_{k}H") 
-# println("AQ_{k-1} is: ")
-# display(A*Q[:, 1:end-1])
-# println("Q_{k}H is:")
-# display(Q*H)
