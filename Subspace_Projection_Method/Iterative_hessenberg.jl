@@ -4,8 +4,9 @@ using LinearAlgebra
 # ITERATIVE HESSENBERG
 #   * Type of A, and type of b has to be the same. For example, if A is complex, 
 #   then b vector/matrix has to be complex too. 
-# ==============================================================================
+
 mutable struct IterativeHessenberg
+    
     A::Function
     b
     H::Vector  # vector of vector
@@ -13,6 +14,7 @@ mutable struct IterativeHessenberg
     r0
     x0
     maxK::Int64
+    itr_count::Int64
     
     function IterativeHessenberg(A::Function, b; x0=nothing, max_k=typemax(Int64))
         this = new()
@@ -24,6 +26,7 @@ mutable struct IterativeHessenberg
         this.Q = Vector{typeof(b)}()
         push!(this.Q, this.r0./sqrt(dot(this.r0, this.r0)))
         this.maxK = max_k
+        this.itr_count = 0
         return this
     end
 
@@ -41,6 +44,10 @@ end
 
 ## Functional Operator Override. 
 function (this::IterativeHessenberg)()
+    if this.itr_count == 0
+        this.itr_count += 1
+        return this.r0, sqrt(dot(this.r0, this.r0))
+    end
     A = this.A
     Q = this.Q
     u = A(Q[end])
@@ -56,7 +63,8 @@ function (this::IterativeHessenberg)()
     if length(Q) > this.maxK
         popfirst!(Q)
     end
-    return Q[end], this.H[end]
+    this.itr_count += 1
+    return Q[end], this.H[end][end]
 end
 
 # Access elements and objects from this algorithms. 
