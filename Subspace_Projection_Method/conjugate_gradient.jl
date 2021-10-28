@@ -34,7 +34,7 @@ function (this::ConjugateGradient)()
     Ad = this.A(d)
     α = dot(this.residual, d)/dot(d, Ad)
     this.x += α*d
-    this.residual = this.b - this.A(this.x)
+    this.residual -= α*Ad
     # 2 updates to keep the conjugations
     return this.x, sqrt(dot(this.residual, this.residual))
 end

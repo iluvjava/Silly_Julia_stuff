@@ -8,11 +8,12 @@ using Test
         @info "Test Run Conjugate Gradient"
         A = rand(N, N)
         A = A*A'
-        cg = ConjugateGradient(A, rand(N))
+        b = rand(N)
+        cg = ConjugateGradient(A, b)
         Q = similar(A)
         for IdxI in 1:100
             x, res = cg()
-            println(res)
+            println(norm(b - A*x))
         end 
         return true
     end
