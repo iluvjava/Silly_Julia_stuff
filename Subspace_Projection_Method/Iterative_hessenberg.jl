@@ -70,6 +70,10 @@ end
 # Access elements and objects from this algorithms. 
 
 function GetHessenberMatrix(this::IterativeHessenberg)
+    if this.itr_count == 0
+        error("first iteration doesn't have the HessenberMatrix yet."). 
+    end
+
     n = length(this.H)
     m = n + 1
     H = Matrix{typeof(this.H[1][1])}(undef, m, n)

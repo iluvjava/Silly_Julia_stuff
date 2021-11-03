@@ -1,4 +1,7 @@
 include("iterative_hessenberg.jl")
+import Logging
+using SuiteSparse
+
 
 function core(N=3)
     A = rand(N, N)
@@ -22,4 +25,33 @@ function core(N=3)
     return
 end
 
-ih = core()
+function LanczaosLDL()
+    function TridiagToSparse(A)
+        m, _ = size(A)
+        return SymTridiagonal(
+            A[[CartesianIndex(I, I) for I in 1:m]],
+            A[[CartesianIndex(I, I + 1) for I in 1:m-1]])
+    end
+    N = 5
+    A = rand(N, N)
+    A = A*A'
+    b = rand(N)
+    display(A)
+    ih = IterativeHessenberg(A, b, max_k=2)
+    ih()
+    @info "Tridiag HESSENBERG"
+    for _ in 1:4
+        ih()
+        T = GetHessenberMatrix(ih)
+        Factorization = ldlt(TridiagToSparse(T[1:end-1, :]))
+        display(Factorization.L)
+        display(inv(Factorization.L))
+    end
+    
+
+    
+
+end
+
+# ih = core()
+LanczaosLDL()
