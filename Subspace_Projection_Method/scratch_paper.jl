@@ -48,10 +48,25 @@ function LanczaosLDL()
         display(inv(Factorization.L))
     end
     
+end
 
+function TridiagCheck()
+    N = 5
+    A = rand(N, N)
+    A = A*A'
+    b = rand(N)
+    display(A)
+    ih = IterativeHessenberg(A, b, max_k=2)
+    ih()
+    @info "Tridiag HESSENBERG"
+    for _ in 1:4
+        ih()
+        T = GetHessenberMatrix(ih)
+        display(T)
+    end
     
-
 end
 
 # ih = core()
 LanczaosLDL()
+TridiagCheck()

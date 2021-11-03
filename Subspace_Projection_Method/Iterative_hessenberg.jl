@@ -71,7 +71,7 @@ end
 
 function GetHessenberMatrix(this::IterativeHessenberg)
     if this.itr_count == 0
-        error("first iteration doesn't have the HessenberMatrix yet."). 
+        error("first iteration doesn't have the HessenberMatrix yet.")
     end
 
     n = length(this.H)
