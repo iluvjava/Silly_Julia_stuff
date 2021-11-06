@@ -45,8 +45,10 @@ end
 ## Functional Operator Override. 
 function (this::IterativeHessenberg)()
     if this.itr_count == 0
+        # The first iteration won't do anything, it just returns status about the initial orthogonal vector. 
         this.itr_count += 1
-        return this.r0, sqrt(dot(this.r0, this.r0))
+        β = sqrt(dot(this.r0, this.r0))
+        return this.r0/β, β
     end
     A = this.A
     Q = this.Q
@@ -56,6 +58,13 @@ function (this::IterativeHessenberg)()
         push!(h, dot(q, u))
         u .-= h[end].*q
     end
+    if norm(u) ≈ 0 
+        error("There is no residual left after orthogonalization.")
+    end
+    if any(isinf, u) || any(isnan, u)
+        error("Vector contains invalid numbers after orthogonalization")
+    end
+
     push!(h, sqrt(dot(u, u)))
     push!(this.H, h)
     push!(Q, u./h[end])
@@ -71,7 +80,12 @@ end
 
 function GetHessenberMatrix(this::IterativeHessenberg)
     if this.itr_count == 0
-        error("first iteration doesn't have the HessenberMatrix yet.")
+        error("Hessenberg Decomposition is never runned")
+    end
+    if this.itr_count == 1
+        # There is only 1 Q vector and it's the residual
+        # THis is not part in the Hessenberg Form 
+        error("No Hessenberg Matrix just after the first call.")
     end
 
     n = length(this.H)

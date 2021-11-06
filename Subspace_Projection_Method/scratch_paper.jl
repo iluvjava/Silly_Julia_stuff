@@ -57,8 +57,8 @@ function TridiagCheck()
     b = rand(N)
     display(A)
     ih = IterativeHessenberg(A, b, max_k=2)
-    ih()
     @info "Tridiag HESSENBERG" 
+    ih()
     for _ in 1:4
         ih()
         T = GetHessenberMatrix(ih)
