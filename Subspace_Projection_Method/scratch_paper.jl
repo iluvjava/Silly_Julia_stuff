@@ -39,7 +39,7 @@ function LanczaosLDL()
     display(A)
     ih = IterativeHessenberg(A, b, max_k=2)
     ih()
-    @info "Tridiag HESSENBERG"
+    @info "L Matrices and L Inverses of the Tridiag Matrix"
     for _ in 1:4
         ih()
         T = GetHessenberMatrix(ih)
@@ -58,7 +58,7 @@ function TridiagCheck()
     display(A)
     ih = IterativeHessenberg(A, b, max_k=2)
     ih()
-    @info "Tridiag HESSENBERG"
+    @info "Tridiag HESSENBERG" 
     for _ in 1:4
         ih()
         T = GetHessenberMatrix(ih)

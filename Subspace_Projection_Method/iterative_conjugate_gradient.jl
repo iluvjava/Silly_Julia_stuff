@@ -24,7 +24,6 @@ mutable struct IterativeConjugateGradient
 
 end
 
-
 # Operator Override
 function (this::IterativeConjugateGradient)()
     ih = this.ih
