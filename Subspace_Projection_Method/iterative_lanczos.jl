@@ -75,8 +75,8 @@ function (this::IterativeLanczos)()
     if length(this.Q) <= this.store_Q
         push!(this.Q, qNew)
     else
-        this.Q[end - 1] = this.Q[end]
-        this.Q[end] = qNew
+        popfirst!(this.Q)
+        push!(pushthisQ, qNew)
     end
     push!(this.alphas, α)
     push!(this.L, this.betas[end]/this.D[end])
