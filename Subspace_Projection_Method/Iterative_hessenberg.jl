@@ -1,4 +1,5 @@
 using LinearAlgebra
+using SuiteSparse
 
 # ==============================================================================
 # ITERATIVE HESSENBERG
@@ -44,12 +45,7 @@ end
 
 ## Functional Operator Override. 
 function (this::IterativeHessenberg)()
-    if this.itr_count == 0
-        # The first iteration won't do anything, it just returns status about the initial orthogonal vector. 
-        this.itr_count += 1
-        β = sqrt(dot(this.r0, this.r0))
-        return this.r0/β, β
-    end
+
     A = this.A
     Q = this.Q
     u = A(Q[end])
@@ -81,11 +77,6 @@ end
 function GetHessenberMatrix(this::IterativeHessenberg)
     if this.itr_count == 0
         error("Hessenberg Decomposition is never runned")
-    end
-    if this.itr_count == 1
-        # There is only 1 Q vector and it's the residual
-        # THis is not part in the Hessenberg Form 
-        error("No Hessenberg Matrix just after the first call.")
     end
 
     n = length(this.H)
