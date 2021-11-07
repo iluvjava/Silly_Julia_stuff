@@ -1,4 +1,4 @@
-include("iterative_hessenberg.jl")
+include("iterative_lanczos.jl")
 
 # The definition of the Iterative Conjugate Gradient method ====================
 #   * only supports real numbers. 
@@ -8,11 +8,9 @@ mutable struct IterativeCGViaArnoldi
     b
     x
     r0
-    d  # The previous, last diagonal of the LDL on T
-    l_hat  # the last element of the first column of the L^{-1} on L of LDL of T
-    l  # the j, j - 1 element of the L matrix from the LDL of T, T is from ih. 
+    p      # The last conjugate directions
     iter_count::Int64
-    ih::IterativeHessenberg
+    il::IterativeLanczos
     
     function IterativeCGViaArnoldi(A::Function, b, x0=nothing)
         this = new()
@@ -20,10 +18,8 @@ mutable struct IterativeCGViaArnoldi
         this.b = b;
         this.x = x0 === nothing ? b : x0
         this.r0 = b - A(this.x)
-        this.d = 1
-        this.l = 1
-        this.l_hat = 0
-        this.ih = IterativeHessenberg(A, b, x0=x0, max_k=2)
+        this.p = r0/norm(r0)  # matches with lancozos q vector. 
+        this.il = IterativeLanczos(A, this.r0, store_Q=2)
         return this
     end
 
@@ -35,17 +31,14 @@ end
 
 # Operator Override
 function (this::IterativeCGViaArnoldi)()
-    ih = this.ih
+    il = this.il
     if this.iter_count == 0 # The first iteration where conjugate direction is literally r0. 
-        ih()
-        ih()
-        ih()
-        H = GetHessenberMatrix(ih)
-        T = H[1:2, 1:2]
-        display(T)
-        return this.x
+        il()
+        a = dot(this.p, this.p)/il.betas[1]  # step size
+        this.x -= a*norm(this.r0)*this.p
+        return this.alphas[1]  # 2 norm of the residual. 
     end
-    q = ih()
+    # q = ih()
     # compute the L matrix for the LDL. 
 
     this.iter_count += 1

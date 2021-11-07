@@ -54,12 +54,10 @@ function (this::IterativeLanczos)()
         Aq -= α*q              # Remove the projection onto q. 
         β = norm(Aq)
         qNew = Aq/β
-        
         push!(this.Q, qNew)    # Fill in the orthogonal vectors
         push!(this.alphas, α)  # filling in the diagonal for matrix T
         push!(this.betas, β)
         push!(this.D, α)       # fill in the diagonal for D
-
         this.itr += 1
         return β               # Residual r(1)
     end
@@ -98,18 +96,33 @@ function GetTMatrix(this::IterativeLanczos)
     if this.itr == 0
         error("Cant get the tridiagonal matrix before diagonalizing")
     end
+    if this.itr == 1
+        return this.alphas[1]
+    end
     return SymTridiagonal{Float64}(this.alphas, this.betas[1:end-1])
 end
 
 function GetQMatrix(this::IterativeLanczos)
-    return hcat(this.Q...)
+    if this.itr == 0 || this.itr == 1
+        return this.Q[this.itr + 1]    # Just the fist vector, nothing more. 
+    end
+    return hcat(this.Q[1:end-1]...)
 end
 
 function GetLMatrix(this::IterativeLanczos)
+    if this.itr == 0 || this.itr == 1
+        return 1
+    end
     return Bidiagonal{Float64}(fill(1,this.itr), this.L, :L)
 end 
 
 function GetDMatrix(this::IterativeLanczos)
+    if this.itr == 0 
+        error("There is no D matrix yet. Must orthogonalize before getting the D matrix")
+    end
+    if this.itr == 1
+        return this.D[1]
+    end
     return Diagonal{Float64}(this.D)
 end
 
