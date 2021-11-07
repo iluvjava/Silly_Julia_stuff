@@ -82,7 +82,7 @@ function (this::IterativeLanczos)()
     push!(this.L, this.betas[end]/this.D[end])
     push!(this.Linv, -this.Linv[end]*this.L[end])
     d = α - this.betas[end]^2/this.D[end]
-    if imag(d) != 0 || d < 0
+    if abs(imag(d)) > 1e-9 || real(2) < 0
         error("The matrix Under Lanczos Might not be Positive Semi-Definite, latest diagonal: $(d)")
     end
     push!(this.D, d)
@@ -99,7 +99,7 @@ function GetTMatrix(this::IterativeLanczos)
     if this.itr == 1
         return this.alphas[1]
     end
-    return SymTridiagonal{Float64}(this.alphas, this.betas[1:end-1])
+    return SymTridiagonal{Float64}(real(this.alphas), real(this.betas[1:end-1]))
 end
 
 function GetQMatrix(this::IterativeLanczos)
@@ -113,7 +113,7 @@ function GetLMatrix(this::IterativeLanczos)
     if this.itr == 0 || this.itr == 1
         return 1
     end
-    return Bidiagonal{Float64}(fill(1,this.itr), this.L, :L)
+    return Bidiagonal{Float64}(fill(1,this.itr), real(this.L), :L)
 end 
 
 function GetDMatrix(this::IterativeLanczos)
@@ -123,6 +123,6 @@ function GetDMatrix(this::IterativeLanczos)
     if this.itr == 1
         return this.D[1]
     end
-    return Diagonal{Float64}(this.D)
+    return Diagonal{Float64}(real(this.D))
 end
 
