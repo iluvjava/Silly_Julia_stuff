@@ -3,7 +3,8 @@
 # It will keep the tridiagonal matrix and its LDL decomposition while running. 
 # IT will make things easier for another flavor of conjugate Gradient
 # * It will store LDL = t
-# * It won't store the matrix Q with more than 2 vectors init. 
+# * By Default it will store all the Q vectors, needs to specify not to store 
+#   * them. 
 # ==============================================================================
 
 include("iterative_hessenberg.jl")
@@ -15,20 +16,26 @@ mutable struct IterativeLanczos
     alphas         # diagonals of the T matrix
     betas          # upper/lower diagonals of the T matrix
     L              # Lower diagonals of the L in LDL.T
-    store_Q::Bool  # Store all the Orthogonal Vectors
+    Linv           # the first column of L Inverse. 
+    store_Q::Int64 # Store all the Orthogonal Vectors
     Q              # Previous 2 orthogonal vectors
     itr::Int64
-    function IterativeLanczos(A::Function, q0; store_Q=false)
+    function IterativeLanczos(A::Function, q0; store_Q=typemax(Int64))
+        if store_Q <= 1
+            error("You can do lancozos by storing $(store_Q) number of previous orthogonal vectors")
+        end
         this = new()
         this.A = A
         this.q = q0
         this.store_Q = store_Q
         this.Q = Vector{typeof(q0)}()
         push!(this.Q, q0/norm(q0))
-        this.alphas = Vector{Real}()
-        this.betas = Vector{Real}()
-        this.L = Vector{Real}()
-        this.D = Vector{Real}()
+        this.alphas = typeof(q0)()
+        this.betas = typeof(q0)()
+        this.L = typeof(q0)()
+        this.D = typeof(q0)()
+        this.Linv = typeof(q0)()
+        push!(this.Linv, 1)
         this.itr = 0
         return this
     end
@@ -38,7 +45,6 @@ mutable struct IterativeLanczos
     end
 
 end
-
 
 function (this::IterativeLanczos)() 
     if this.itr == 0
@@ -57,14 +63,53 @@ function (this::IterativeLanczos)()
         this.itr += 1
         return β               # Residual r(1)
     end
+    q = this.Q[end]
+    Aq = this.A(q)
+    Aq -= this.betas[end]*this.Q[end - 1]
+    α = dot(q, Aq)
+    Aq -= α*q
+    β = norm(Aq)
+    if β ≈ 0
+        error("The q vector is too small after orthogonalization. ")
+    end
+    qNew = Aq/β
 
+    if length(this.Q) <= this.store_Q
+        push!(this.Q, qNew)
+    else
+        this.Q[end - 1] = this.Q[end]
+        this.Q[end] = qNew
+    end
+    push!(this.alphas, α)
+    push!(this.L, this.betas[end]/this.D[end])
+    push!(this.Linv, -this.Linv[end]*this.L[end])
+    d = α - this.betas[end]^2/this.D[end]
+    if imag(d) != 0 || d < 0
+        error("The matrix Under Lanczos Might not be Positive Semi-Definite, latest diagonal: $(d)")
+    end
+    push!(this.D, d)
+    push!(this.betas, β)
+    
     this.itr += 1
-    return 
+    return β
 end
 
-function GetTridiagonalMatrix(this::IterativeLanczos)
+function GetTMatrix(this::IterativeLanczos)
     if this.itr == 0
         error("Cant get the tridiagonal matrix before diagonalizing")
     end
-    return SymTridiagonal(this.alphas, this.betas)
+    return SymTridiagonal{Float64}(this.alphas, this.betas[1:end-1])
 end
+
+function GetQMatrix(this::IterativeLanczos)
+    return hcat(this.Q...)
+end
+
+function GetLMatrix(this::IterativeLanczos)
+    return Bidiagonal{Float64}(fill(1,this.itr), this.L, :L)
+end 
+
+function GetDMatrix(this::IterativeLanczos)
+    return Diagonal{Float64}(this.D)
+end
+
