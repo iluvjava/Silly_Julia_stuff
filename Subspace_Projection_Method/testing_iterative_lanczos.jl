@@ -67,6 +67,8 @@ using Logging
             display(L)
             display(T)
             display(D)
+            Error = norm(reshape(Q'*Q - I, :), Inf)
+            @assert Error <= 1e-9 "The orthogonalization error is too big: $(Error)"
             Error = norm(reshape(Q'*A*Q - T, :), Inf)
             @assert Error <= 1e-9 "Q'AQ reconstruct error too big: $(Error)"
             Error = norm(reshape(L*D*L' - T, :), Inf)

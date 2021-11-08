@@ -52,7 +52,7 @@ function (this::IterativeLanczos)()
         Aq = this.A(q)
         α = dot(q, Aq)
         Aq -= α*q              # Remove the projection onto q. 
-        β = norm(Aq)
+        β = norm(Aq)           # Get the beta here, I assure you it's correct. 
         qNew = Aq/β
         push!(this.Q, qNew)    # Fill in the orthogonal vectors
         push!(this.alphas, α)  # filling in the diagonal for matrix T

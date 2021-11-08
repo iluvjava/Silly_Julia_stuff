@@ -9,7 +9,7 @@ mutable struct IterativeCGViaLanczos
     b      # The RHS of the equation. 
     x      # The solution vector. 
     r0     # The first initial residual. 
-    rnorm  # That norm of the newest residual. 
+    r     # That norm of the newest residual. 
     p      # The last conjugate directions. 
     itr::Int64
     il::IterativeLanczos
@@ -20,7 +20,7 @@ mutable struct IterativeCGViaLanczos
         this.b = b;
         this.x = x0 === nothing ? b : x0
         this.r0 = b - A(this.x)
-        this.rnorm = norm(this.r0)
+        this.r = norm(this.r0)
         this.il = IterativeLanczos(A, this.r0, store_Q=2)
         this.p = this.il.Q[1]  # conjugate direction directly come from Q from lanczos
         this.itr = 0
@@ -40,11 +40,11 @@ function (this::IterativeCGViaLanczos)()
     A = this.A
     if this.itr == 0 # The first iteration where conjugate direction is literally r0. 
         β = il()
-        a = dot(this.p, this.p)/il.alphas[end]  # step size
+        a = 1/il.alphas[end]  # step size
         this.x += a*this.r0
-        this.rnorm = b - a*A(this.r0)
+        this.r = this.r0 - a*A(this.r0)  # TODO: Is it the same as the Lanczos vectors? 
         this.itr += 1
-        return this.rnorm  # 2 norm of the residual. 
+        return a*β  # 2 norm of the residual. 
     end
     # q = ih()
     # compute the L matrix for the LDL. 
@@ -58,5 +58,5 @@ A = rand(3,3)
 A = A*A'
 b = rand(3)
 cg = IterativeCGViaLanczos(A, b)
-cg();
+rnorm = cg();
 il = cg.il
