@@ -10,12 +10,14 @@ using Logging
         cg = IterativeCGViaLanczos(A, b)
         Error = Inf
         MaxItr = 20*N
-        while Error > 1e-8 && MaxItr < 5000
+        Itr = 0
+        while Error > 1e-8 && Itr < MaxItr
             Error = cg()
             println("2 Norm Error: $(Error)")
-            MaxItr += 1
+            Itr += 1
         end
-        return true
+        print("Iterations Underwent: $(Itr)")
+        return Itr < MaxItr
     end
     @test Test1()
 end
