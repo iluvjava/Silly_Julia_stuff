@@ -17,9 +17,10 @@ mutable struct IterativeLanczos
     betas          # upper/lower diagonals of the T matrix
     L              # Lower diagonals of the L in LDL.T
     Linv           # the first column of L Inverse. 
-    store_Q::Int64 # Store all the Orthogonal Vectors
+
     Q              # Previous 2 orthogonal vectors
     itr::Int64
+    store_Q::Int64 # Store all the Orthogonal Vectors
     function IterativeLanczos(A::Function, q0; store_Q=typemax(Int64))
         if store_Q <= 1
             error("You can do lancozos by storing $(store_Q) number of previous orthogonal vectors")
@@ -63,8 +64,8 @@ function (this::IterativeLanczos)()
     end
     q = this.Q[end]
     Aq = this.A(q)
-    Aq -= this.betas[end]*this.Q[end - 1]
-    α = dot(q, Aq)
+    Aq -= this.betas[end]*this.Q[end - 1]  # by symmetry. 
+    α = dot(q, Aq)    # Numerically unstable. 
     Aq -= α*q
     β = norm(Aq)
     if β ≈ 0
@@ -76,15 +77,17 @@ function (this::IterativeLanczos)()
         push!(this.Q, qNew)
     else
         popfirst!(this.Q)
-        push!(pushthisQ, qNew)
+        push!(this.Q, qNew)
     end
     push!(this.alphas, α)
     push!(this.L, this.betas[end]/this.D[end])
     push!(this.Linv, -this.Linv[end]*this.L[end])
     d = α - this.betas[end]^2/this.D[end]
+    
     if abs(imag(d)) > 1e-9 || real(2) < 0
         error("The matrix Under Lanczos Might not be Positive Semi-Definite, latest diagonal: $(d)")
     end
+
     push!(this.D, d)
     push!(this.betas, β)
     
