@@ -58,8 +58,5 @@ function (this::IterativeCGViaLanczos)()
     return this.r
 end
 
-function GetResidualEnergyNorm(this::IterativeCGViaLanczos)
-    r = this.b - this.A(this.x)
-    return dot(r, this.A(r))
-end
+
 

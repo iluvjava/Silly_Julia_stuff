@@ -8,8 +8,7 @@ include("iterative_conjugate_original.jl")
         A = rand(N, N)
         A = A*A'
         b = rand(N)
-        IcgOri = IterativeCGOriginal(A, b)   
-        
+        IcgOri = IterativeCGOriginal(A, b)
         for _ = 1:N + 1
             display(norm(IcgOri()))    
         end
@@ -17,7 +16,7 @@ include("iterative_conjugate_original.jl")
         @assert norm(b - A*IcgOri.x) < 1e-10
         return true
     end
-
-    @test Test1()
-    
+    @test Test1() 
 end
+
+
