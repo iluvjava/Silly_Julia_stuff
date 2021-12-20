@@ -5,7 +5,7 @@ include("SubspaceProjectionMethods.jl")
 Sproj = SubspaceProjectionMethods
 
 
-# TODO: Investigate why it can't do exact arithematic. 
+
 N = 5
 A = rand(N, N)
 b = rand(N)

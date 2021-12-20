@@ -4,6 +4,7 @@ Sproj = SubspaceProjectionMethods
 using LinearAlgebra
 using Logging
 using Plots
+gr(); # Specified Backend for Plots
 using ProgressMeter
 
 

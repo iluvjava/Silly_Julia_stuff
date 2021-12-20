@@ -7,7 +7,6 @@
 #   * them. 
 # ==============================================================================
 
-# include("iterative_hessenberg.jl")
 using LinearAlgebra
 
 mutable struct IterativeLanczos
@@ -68,7 +67,7 @@ function (this::IterativeLanczos)()
     Aq -= this.betas[end]*this.Q[end - 1]  # by symmetry. 
     α = dot(q, Aq)                         # Numerically unstable. 
     Aq -= α*q
-    β = norm(Aq)                           # Got beta for sub diag of T
+    β = norm(Aq)                           # Got beta for sub diag of T, prevents rational arithmetic. 
     if β ≈ 0
         error("The q vector is too small after orthogonalization. ")
     end
