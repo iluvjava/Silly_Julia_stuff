@@ -1,6 +1,6 @@
 using Test
 using Logging
-include("iterative_conjugate_original.jl")
+include("SubspaceProjectionMethods.jl")
 
 @testset "Testing the original Conjugate Gradient" begin
 

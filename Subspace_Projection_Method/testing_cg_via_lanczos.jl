@@ -19,7 +19,28 @@ using Logging
         print("Iterations Underwent: $(Itr)")
         return Itr < MaxItr
     end
+
+    function Test2(N=50)
+        A = rand(N, N)
+        A = A*A'
+        b = rand(N)
+        cg = IterativeCGViaLanczos(A, b)
+        Error = Inf
+        MaxItr = 20*N
+        Itr = 0
+        while Error > 1e-8 && Itr < MaxItr
+            Error = cg()
+            println("2 Norm Error: $(Error)")
+            Itr += 1
+        end
+        println("Iterations Underwent: $(Itr)")
+        ResNorm = norm(b - A*cg.x)
+        println("The recomputed residual norm2 is: $(ResNorm)")
+
+        return ResNorm < 1e-8
+    end
     @test Test1()
+    @test Test2()
 end
 
 
