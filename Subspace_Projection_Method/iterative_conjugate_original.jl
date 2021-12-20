@@ -26,7 +26,11 @@ mutable struct IterativeCGOriginal
 end
 
 function (this::IterativeCGOriginal)()
+
     r = this.r
+    if r == 0
+        return 0 # The problem is solved already. 
+    end
     A = this.A
     d = this.d
     Ad = A(d)
@@ -42,7 +46,7 @@ function (this::IterativeCGOriginal)()
     this.d = this.rnew + β*d
     this.r = this.rnew                      # Override
     this.itr += 1 
-    return r
+    return this.rnew
 end
 
 
