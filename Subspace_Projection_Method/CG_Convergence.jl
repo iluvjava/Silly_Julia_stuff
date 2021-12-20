@@ -4,6 +4,7 @@ Sproj = SubspaceProjectionMethods
 using LinearAlgebra
 using Logging
 using Plots
+using ProgressMeter
 
 
 """
@@ -25,7 +26,7 @@ using Plots
 function GetNastyPSDMatrix(rho::Number, N=20)
     @assert rho <= 1 && rho >= 0
     A = rand(N, N)
-    Q, _ = qr(A)
+    # Q, _ = qr(A)
     EigenValues = zeros(N)
     EigenMin, EigenMax = 0.001, 1    # Min Max Eigenvalues. 
     EigenValues[1], EigenValues[end] = EigenMin, EigenMax
@@ -33,7 +34,7 @@ function GetNastyPSDMatrix(rho::Number, N=20)
         EigenValues[IdexI] = EigenMin + 
             ((IdexI - 1)/(N - 1))*(EigenMax - EigenMin)*rho^(N - IdexI)  # formulas
     end
-    return Q*diagm(EigenValues)*Q'
+    return diagm(EigenValues)
 end
 
 """
@@ -45,21 +46,28 @@ end
     returns
 
 """
-function RunCGTillEnd(A, b; maxitr=100, epsilon=1e-8)
-    cg = Sproj.IterativeCGViaLanczos(copy(A), copy(b))
+function RunCGTillEnd(A, b; maxitr=100, epsilon=1e-8, cg_implementation=nothing)
+    if cg_implementation === nothing
+        cg_implementation = Sproj.IterativeCGViaLanczos
+    end
+    cg = cg_implementation(copy(A), copy(b))
     Xs = Vector{typeof(b)}()    # list of solutions
     Rs = Vector{Float64}()      # list of 2 norm of residuals, recomputed.  
     push!(Xs, cg.x)             # intial guess added. 
     Counter = 0
     ResNorm = Inf
     
+    prog = ProgressThresh(epsilon, "Minimizing:")
+
     while ResNorm > epsilon && Counter < maxitr
         _ = cg()
         push!(Xs, cg.x)
         ResNorm = norm(b - A*cg.x)
-        push!(Rs, ResNorm)
+        push!(Rs, convert(Float64, ResNorm))
+        update!(prog, ResNorm)
         Counter += 1
     end
+    finish!(prog) 
     return cg, Xs, Rs
 end
 
@@ -77,6 +85,17 @@ function EnergyErrorNorm(A, b, Xs)
     XStar = A\b
     return Xs .|> (x)-> dot(x - XStar, A, x - XStar)
 end
+
+function InfNan2Zero(n)
+    if isnan(n) || n == Inf || n == -Inf
+        return n
+    end
+    return n
+end
+
+
+# ------------------------------------------------------------------------------
+# Interactive Parts: 
 
 
 

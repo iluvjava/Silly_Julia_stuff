@@ -66,9 +66,9 @@ function (this::IterativeLanczos)()
     q = this.Q[end]
     Aq = this.A(q)
     Aq -= this.betas[end]*this.Q[end - 1]  # by symmetry. 
-    α = dot(q, Aq)    # Numerically unstable. 
+    α = dot(q, Aq)                         # Numerically unstable. 
     Aq -= α*q
-    β = norm(Aq)
+    β = norm(Aq)                           # Got beta for sub diag of T
     if β ≈ 0
         error("The q vector is too small after orthogonalization. ")
     end
@@ -91,7 +91,6 @@ function (this::IterativeLanczos)()
 
     push!(this.D, d)
     push!(this.betas, β)
-    
     this.itr += 1
     return β
 end

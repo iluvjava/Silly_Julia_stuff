@@ -43,7 +43,7 @@ function (this::IterativeCGViaLanczos)()
     il = this.il
     if this.itr == 0 # The first iteration where conjugate direction is literally r0. 
         β = il()
-        a = 1/il.alphas[end]  
+        a = 1/il.alphas[end]
         this.x += a*this.r0
         this.r = abs(this.r*β*a)
         this.itr += 1
