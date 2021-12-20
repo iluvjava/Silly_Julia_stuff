@@ -4,6 +4,8 @@ using Logging
 
 @testset "Testing the Iterative CG via Lanczos" begin
     function Test1(N=50)
+        @info "This is a very basic test to see if the algorithm terminates 
+        with reasonable number of steps, from the residual it returns. "
         A = rand(N, N)
         A = A*A'
         b = rand(N)
@@ -17,10 +19,12 @@ using Logging
             Itr += 1
         end
         print("Iterations Underwent: $(Itr)")
+
         return Itr < MaxItr
     end
 
     function Test2(N=50)
+        @info "Testing the vadility of the solutions, terminating using the residual returned by the algorithm. "
         A = rand(N, N)
         A = A*A'
         b = rand(N)
@@ -39,6 +43,11 @@ using Logging
         println("The residual informed by the iterative cgl is: $(cg.r)")
         return ResNorm < 1e-6
     end
+    function Test3(N=50)
+        @info "Testing how well this thing handles exact arithematic."
+        
+    end
+
     @test Test1()
     @test Test2()
 end
