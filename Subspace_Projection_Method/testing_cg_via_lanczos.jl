@@ -36,8 +36,8 @@ using Logging
         println("Iterations Underwent: $(Itr)")
         ResNorm = norm(b - A*cg.x)
         println("The recomputed residual norm2 is: $(ResNorm)")
-
-        return ResNorm < 1e-8
+        println("The residual informed by the iterative cgl is: $(cg.r)")
+        return ResNorm < 1e-6
     end
     @test Test1()
     @test Test2()
