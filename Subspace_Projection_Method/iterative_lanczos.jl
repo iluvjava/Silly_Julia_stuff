@@ -7,13 +7,14 @@
 #   * them. 
 # ==============================================================================
 
-include("iterative_hessenberg.jl")
+# include("iterative_hessenberg.jl")
+using LinearAlgebra
 
 mutable struct IterativeLanczos
     A
     q
     D              # diagonals of the D matrix for LDL 
-    alphas         # diagonals of the T matrix
+    alphas         # diagonals `of the T matrix
     betas          # upper/lower diagonals of the T matrix
     L              # Lower diagonals of the L in LDL.T
     Linv           # the first column of L Inverse. 

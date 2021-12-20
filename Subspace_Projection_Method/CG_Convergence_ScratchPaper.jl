@@ -80,18 +80,3 @@ end
 
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Interactive Section here. 
-n = 50
-fig1 = plot(title="Resnorm2, n=$(n)")
-fig2 = plot(title="Error Energy Norm")
-
-for ρ = [0.1, 0.5, 0.8, 0.9, 1]
-    A = GetNastyPSDMatrix(ρ, n)  # A random matrix
-    b = rand(size(A, 2))
-    cg, Guesses, ResNorm = RunCGTillEnd(A, b, maxitr=2000, epsilon=1e-10)
-    plot!(fig1, ResNorm, label="ρ=$(ρ)")
-    plot!(fig2, EnergyErrorNorm(A, b, Guesses), yaxis=:log10, label="ρ=$(ρ)")
-    
-end
-plot(fig1, fig2, layout=(2, 1))

@@ -80,8 +80,14 @@ using Logging
         
         return true
     end
+
+    function Test3()
+
+    end
+
     @info "Testing Real Hermitian"
     @test Test1()
     @info "Testing Complex Hermitian"
     @test Test2()
+    
 end

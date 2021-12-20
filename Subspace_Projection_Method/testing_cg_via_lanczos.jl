@@ -1,4 +1,5 @@
-include("iterative_conjugate_gradient_via_lanczos.jl")
+include("SubspaceProjectionMethods.jl")
+Sproj = SubspaceProjectionMethods
 using Test 
 using Logging
 
@@ -9,7 +10,7 @@ using Logging
         A = rand(N, N)
         A = A*A'
         b = rand(N)
-        cg = IterativeCGViaLanczos(A, b)
+        cg = Sproj.IterativeCGViaLanczos(A, b)
         Error = Inf
         MaxItr = 20*N
         Itr = 0
@@ -28,11 +29,11 @@ using Logging
         A = rand(N, N)
         A = A*A'
         b = rand(N)
-        cg = IterativeCGViaLanczos(A, b)
+        cg = Sproj.IterativeCGViaLanczos(A, b)
         Error = Inf
         MaxItr = 20*N
         Itr = 0
-        while Error > 1e-8 && Itr < MaxItr
+        while Error > 1e-16 && Itr < MaxItr
             Error = cg()
             println("2 Norm Error: $(Error)")
             Itr += 1
@@ -45,11 +46,22 @@ using Logging
     end
     function Test3(N=50)
         @info "Testing how well this thing handles exact arithematic."
+        A = convert(Matrix{Rational{BigInt}}, rand(N, N))
+        b = convert(Vector{Rational{BigInt}}, rand(N))
+        A = A*A'
+        cg = Sproj.IterativeCGViaLanczos(A, b)
+        for Iteration in 1: N + 1
+            println(convert(Float64, cg()))
+        end
+        FinalResNorm = convert(Float64, norm(b - A*cg.x))
+        println("Recomputing the residual Norm: $(FinalResNorm)")
+        return FinalResNorm < 1e-16
         
     end
 
     @test Test1()
     @test Test2()
+    @test Test3()
 end
 
 

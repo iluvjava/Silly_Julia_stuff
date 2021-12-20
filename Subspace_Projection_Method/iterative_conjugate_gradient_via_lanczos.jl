@@ -1,4 +1,4 @@
-include("iterative_lanczos.jl")
+using LinearAlgebra
 
 # The definition of the Iterative Conjugate Gradient method ====================
 #   * only supports real numbers. 
