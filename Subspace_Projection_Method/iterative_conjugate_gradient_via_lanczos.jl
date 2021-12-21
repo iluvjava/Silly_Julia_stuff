@@ -22,7 +22,7 @@ mutable struct IterativeCGViaLanczos
         this = new()
         this.A = A;
         this.b = b;
-        this.x = x0 === nothing ? b : x0
+        this.x = x0 === nothing ? b .+ 0.1 : x0   # perturb initial guess to handle eigenvalue of 1 of the matrix A. 
         this.r0 = b - A(this.x)
         this.r = norm(this.r0)
         this.r0norm = this.r

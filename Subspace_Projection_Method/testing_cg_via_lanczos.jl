@@ -44,6 +44,7 @@ using Logging
         println("The residual informed by the iterative cgl is: $(cg.r)")
         return ResNorm < 1e-6
     end
+    
     function Test3(N=50)
         @info "Testing how well this thing handles exact arithematic."
         A = convert(Matrix{Rational{BigInt}}, rand(N, N))
