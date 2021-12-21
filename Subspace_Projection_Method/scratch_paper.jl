@@ -18,19 +18,7 @@ function GetNastyPSDMatrix(rho::Number, N=20)
     return diagm(EigenValues)
 end
 
+A = GetNastyPSDMatrix(0.1)
 
-n = 15
-A = convert(Matrix{Float16}, GetNastyPSDMatrix(0.9, n))
-b = convert(Vector{Float16}, rand(n))
-il = Sproj.IterativeLanczos(A, b)
-cg = Sproj.IterativeCGViaLanczos(A, b)
-for Idx in 1: 20
-    il()
-    cg()
-end
-
-T1 = Sproj.GetTMatrix(il)
-Q1 = Sproj.GetQMatrix(il)
-T2 = Sproj.GetTMatrix(cg.il)
 
 # Nothing wrong with Lanzos. 
