@@ -3,6 +3,7 @@ include("CG_Convergence.jl")
 # ------------------------------------------------------------------------------
 # Interactive Parts: 
 # Plotting out the distribution of the Eigenvals. 
+# fig
 
 n = 30
 λ1 = 0.001
@@ -21,23 +22,25 @@ savefig(fig, "plots/Eigenvalues_Distribution.png")
 
 # ------------------------------------------------------------------------------
 # Floating Points Arithematic
+# fig1, fig2.
 
 n = 50
 fig1 = plot(title="Resnorm2, n=$(n)")
 fig2 = plot(title="Error Energy Norm")
-
+EnergyNormGuessesErrors = nothing
 for ρ = [0.1, 0.5, 0.8, 0.9, 1]
     A = GetNastyPSDMatrix(ρ, n)                                                  # A random matrix
     b = rand(size(A, 2))
     cg, Guesses, ResNorm = RunCGTillEnd(A, b, maxitr=2000, epsilon=1e-10)        # Reassign gloabal.
     plot!(fig1, ResNorm, label="ρ=$(ρ)")
-    plot!(fig2, EnergyErrorNorm(A, b, Guesses), yaxis=:log10, label="ρ=$(ρ)")
+    EnergyNormGuessesErrors = EnergyErrorNorm(A, b, Guesses)
+    plot!(fig2, EnergyNormGuessesErrors, yaxis=:log10, label="ρ=$(ρ)")
     
 end
 display(fig1)
 display(fig2)
-savefig(fig, "plots/Floats_Convergence_Resnorm2.png")
-savefig(fig, "plots/Floats_Convergence_ResEnergyNorm.png")
+savefig(fig1, "plots/Floats_Convergence_Resnorm2.png")
+savefig(fig2, "plots/Floats_Convergence_ResEnergyNorm.png")
 
 # ------------------------------------------------------------------------------
 # Exact Arithematic for the Lanczos
@@ -116,5 +119,7 @@ CSV.write("data/TrueEigenvalues.csv", CSV.Tables.table(TrueEigenVals))
 
 # ------------------------------------------------------------------------------
 # Now let's bound this with the theory we developed. 
+
+
 
 

@@ -10,7 +10,7 @@ using LinearAlgebra
 mutable struct IterativeCGViaLanczos
     A::Function
     b      # The RHS of the equation. 
-    x      # The solution vector. 
+    x      # The solution vector, when it's all the guesses including the initial guess. 
     r0     # The first initial residual. 
     r0norm
     r      # That norm of the newest residual. 

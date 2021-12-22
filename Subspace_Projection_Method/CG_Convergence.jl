@@ -26,10 +26,8 @@ using CSV
     returns: 
         Q^TΛQ: Where Q is a random unitary matrix. 
 """
-function GetNastyPSDMatrix(rho::Number, N=20)
+function GetNastyPSDMatrix(rho::Number; N=20, inverted=false)
     @assert rho <= 1 && rho >= 0
-    A = rand(N, N)
-    # Q, _ = qr(A)
     EigenValues = zeros(N)
     EigenMin, EigenMax = 0.001, 1    # Min Max Eigenvalues. 
     EigenValues[1] = EigenMin
@@ -37,8 +35,12 @@ function GetNastyPSDMatrix(rho::Number, N=20)
         EigenValues[IdexI] = EigenMin + 
             ((IdexI - 1)/(N - 1))*(EigenMax - EigenMin)*rho^(N - IdexI)  # formulas
     end
+    if inverted
+        return I - diagm(EigenValues)
+    end
     return diagm(EigenValues)
 end
+
 
 """
     Perform the Conjugate Gradient method using the IterativeCGViaLanczos method. 
@@ -56,7 +58,9 @@ function RunCGTillEnd(A, b; maxitr=100, epsilon=1e-8, cg_implementation=nothing)
     cg = cg_implementation(copy(A), copy(b))
     Xs = Vector{typeof(b)}()    # list of solutions
     Rs = Vector{Float64}()      # list of 2 norm of residuals, recomputed.  
-    push!(Xs, cg.x)             # intial guess added. 
+    push!(Xs, cg.x)             # Initial guess added. 
+    Rs = Vector{Float64}()
+    push!(Rs, cg.r0)            # Initial Residual Added. 
     Counter = 0
     ResNorm = Inf
     
@@ -82,13 +86,18 @@ end
     Parameters: 
         A: The matrix
         b: The vector on the RHS
-        Xs: All the guesses vector from the CGLanczos Algorithm. 
+        Xs: All the guesses vector from the CG Algorithm, including the initial guess! 
 """
 function EnergyErrorNorm(A, b, Xs)
     XStar = A\b
-    return Xs .|> (x)-> dot(x - XStar, A, x - XStar)
+    InitialError = dot(Xs[1] - XStar, A, Xs[1] - XStar)
+    return Xs .|> (x) ->  dot(x - XStar, A, x - XStar)/InitialError
 end
 
+
+"""
+    Replace a number from Nan/inf to zero, this function should be broadcasted for usage on matrices and vectors. 
+"""
 function InfNan2Zero(n)
     if isnan(n) || n == Inf || n == -Inf
         return n
