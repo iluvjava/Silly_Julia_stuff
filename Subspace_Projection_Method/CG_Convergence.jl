@@ -19,14 +19,15 @@ using CSV
 
     Parameters:
         rho: Number: 
-            An number between 0 and 1 that paramaterize the distribution of the eigenvalues for the PSD matrix. 
+            An number between 0 and 1 that paramaterize the distribution of the 
+            eigenvalues for the PSD matrix. 
         N=20: 
             The size of the PSD matrix.
     
     returns: 
         Q^TΛQ: Where Q is a random unitary matrix. 
 """
-function GetNastyPSDMatrix(rho::Number; N=20, inverted=false)
+function GetNastyPSDMatrix(rho::Number, N=20, inverted=false)
     @assert rho <= 1 && rho >= 0
     EigenValues = zeros(N)
     EigenMin, EigenMax = 0.001, 1    # Min Max Eigenvalues. 
@@ -60,7 +61,7 @@ function RunCGTillEnd(A, b; maxitr=100, epsilon=1e-8, cg_implementation=nothing)
     Rs = Vector{Float64}()      # list of 2 norm of residuals, recomputed.  
     push!(Xs, cg.x)             # Initial guess added. 
     Rs = Vector{Float64}()
-    push!(Rs, cg.r0)            # Initial Residual Added. 
+    push!(Rs, Sproj.GetCurrentResidualNorm(cg))            # Initial Residual Added. 
     Counter = 0
     ResNorm = Inf
     
@@ -96,7 +97,8 @@ end
 
 
 """
-    Replace a number from Nan/inf to zero, this function should be broadcasted for usage on matrices and vectors. 
+    Replace a number from Nan/inf to zero, this function should be broadcasted 
+    for usage on matrices and vectors. 
 """
 function InfNan2Zero(n)
     if isnan(n) || n == Inf || n == -Inf

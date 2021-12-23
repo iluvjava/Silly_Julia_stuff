@@ -36,7 +36,7 @@ Sproj = SubspaceProjectionMethods
     end
 
     @info "Basic Tests"
-    # @test Test1() 
+    @test Test1() 
     @info "Testing CG original under exact arithematic"
     
 

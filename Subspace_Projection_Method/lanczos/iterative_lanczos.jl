@@ -7,7 +7,7 @@
 #   * them. 
 # ==============================================================================
 
-using LinearAlgebra
+
 
 mutable struct IterativeLanczos
     A

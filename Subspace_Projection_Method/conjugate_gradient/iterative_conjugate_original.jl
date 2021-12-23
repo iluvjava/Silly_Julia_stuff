@@ -1,6 +1,6 @@
 # include("iterative_hessenberg.jl")  # import stuff that this import. 
-using LinearAlgebra
-mutable struct IterativeCGOriginal
+
+mutable struct IterativeCGOriginal <: IterativeCG
     r
     rnew
     d
@@ -11,7 +11,7 @@ mutable struct IterativeCGOriginal
     function IterativeCGOriginal(A::Function, b, x0=nothing)
         this = new()
         this.A = A
-        this.x = x0 === nothing ? b : x0
+        this.x = x0 === nothing ? b .+ 0.1  : x0  # just to handle matrix A that has eigenvalue of exactly 1.
         this.r = b - A(this.x)
         this.rnew = similar(this.r)
         this.d = this.r
@@ -49,4 +49,7 @@ function (this::IterativeCGOriginal)()
     return this.rnew
 end
 
+function GetCurrentResidualNorm(this::IterativeCG)
+    return norm(this.r)
+end
 

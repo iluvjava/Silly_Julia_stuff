@@ -19,12 +19,12 @@ using Logging
             println("2 Norm Error: $(Error)")
             Itr += 1
         end
-        print("Iterations Underwent: $(Itr)")
+        println("Iterations Underwent: $(Itr)")
 
         return Itr < MaxItr
     end
 
-    function Test2(N=50)
+    function Test2(N=30)
         @info "Testing the vadility of the solutions, terminating using the residual returned by the algorithm. "
         A = rand(N, N)
         A = A*A'
@@ -42,6 +42,8 @@ using Logging
         ResNorm = norm(b - A*cg.x)
         println("The recomputed residual norm2 is: $(ResNorm)")
         println("The residual informed by the iterative cgl is: $(cg.r)")
+        # TODO: Please check the math to confirm/explain the behaviors here.
+        println("I think disparity is expected, but I need check the math for explanation. ")
         return ResNorm < 1e-6
     end
     

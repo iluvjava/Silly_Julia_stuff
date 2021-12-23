@@ -1,4 +1,4 @@
-using LinearAlgebra
+
 
 # The definition of the Iterative Conjugate Gradient method ====================
 #   * only supports real numbers. 
@@ -7,7 +7,7 @@ using LinearAlgebra
 #   original cg. 
 #   * not sure how to get the one norm of the residual. 
 
-mutable struct IterativeCGViaLanczos
+mutable struct IterativeCGViaLanczos <: IterativeCG
     A::Function
     b      # The RHS of the equation. 
     x      # The solution vector, when it's all the guesses including the initial guess. 
@@ -58,5 +58,7 @@ function (this::IterativeCGViaLanczos)()
     return this.r
 end
 
-
+function GetCurrentResidualNorm(this::IterativeCGViaLanczos)
+    return this.r
+end
 
