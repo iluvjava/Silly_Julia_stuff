@@ -1,4 +1,5 @@
-include("SubspaceProjectionMethods.jl")
+
+include("iterative_lanczos_ldl.jl")
 Sproj = SubspaceProjectionMethods
 
 using LinearAlgebra
@@ -82,9 +83,6 @@ using Logging
         
         return true
     end
-
-    
-   
 
     @info "Testing Real Hermitian"
     @test Test1()

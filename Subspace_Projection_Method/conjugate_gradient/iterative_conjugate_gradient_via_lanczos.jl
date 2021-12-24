@@ -16,7 +16,7 @@ mutable struct IterativeCGViaLanczos <: IterativeCG
     r      # That norm of the newest residual. 
     p      # The last conjugate directions. 
     itr::Int64
-    il::IterativeLanczos
+    il::IterativeLanczosLDL
     
     function IterativeCGViaLanczos(A::Function, b, x0=nothing)
         this = new()
@@ -26,7 +26,7 @@ mutable struct IterativeCGViaLanczos <: IterativeCG
         this.r0 = b - A(this.x)
         this.r = norm(this.r0)
         this.r0norm = this.r
-        this.il = IterativeLanczos(A, this.r0, store_Q=2)
+        this.il = IterativeLanczosLDL(A, this.r0, store_Q=2)
         this.p = this.il.Q[1]  # conjugate direction directly come from Q from lanczos
         this.itr = 0
         return this

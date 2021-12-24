@@ -95,7 +95,12 @@ let
     return 
 end
 
-fig5 = scatter(zeros(length(TrueEigenVals)), TrueEigenVals.|>log10, size=(1000,2000), dpi=250)
+fig5 = scatter(
+    zeros(length(TrueEigenVals)), 
+    TrueEigenVals.|>log10, 
+    size=(1000,2000), 
+    dpi=250
+    )
 
 v = nothing
 for Indx in 3:size(T, 1)
@@ -115,7 +120,6 @@ display(TrueEigenVals)
 # Save the intermediate results for analysis. 
 CSV.write("data/T.csv", CSV.Tables.table(T))
 CSV.write("data/TrueEigenvalues.csv", CSV.Tables.table(TrueEigenVals))
-
 
 # ------------------------------------------------------------------------------
 # Now let's bound this with the theory we developed. 

@@ -9,7 +9,7 @@
 
 
 
-mutable struct IterativeLanczos
+mutable struct IterativeLanczosLDL
     A
     q
     D              # diagonals of the D matrix for LDL 
@@ -21,7 +21,7 @@ mutable struct IterativeLanczos
     Q              # Previous 2 orthogonal vectors
     itr::Int64
     store_Q::Int64 # Store all the Orthogonal Vectors
-    function IterativeLanczos(A::Function, q0; store_Q=typemax(Int64))
+    function IterativeLanczosLDL(A::Function, q0; store_Q=typemax(Int64))
         if store_Q <= 1
             error("You can do lancozos by storing $(store_Q) number of previous orthogonal vectors")
         end
@@ -41,13 +41,13 @@ mutable struct IterativeLanczos
         return this
     end
 
-    function IterativeLanczos(A::AbstractArray, q0)
-        return IterativeLanczos((x) -> A*x, q0)
+    function IterativeLanczosLDL(A::AbstractArray, q0)
+        return IterativeLanczosLDL((x) -> A*x, q0)
     end
 
 end
 
-function (this::IterativeLanczos)() 
+function (this::IterativeLanczosLDL)() 
     if this.itr == 0
         q = this.Q[end] 
         Aq = this.A(q)
@@ -94,7 +94,7 @@ function (this::IterativeLanczos)()
     return β
 end
 
-function GetTMatrix(this::IterativeLanczos)
+function GetTMatrix(this::IterativeLanczosLDL)
     if this.itr == 0
         error("Cant get the tridiagonal matrix before diagonalizing")
     end
@@ -104,21 +104,21 @@ function GetTMatrix(this::IterativeLanczos)
     return SymTridiagonal{Float64}(real(this.alphas), real(this.betas[1:end-1]))
 end
 
-function GetQMatrix(this::IterativeLanczos)
+function GetQMatrix(this::IterativeLanczosLDL)
     if this.itr == 0 || this.itr == 1
         return this.Q[this.itr + 1]    # Just the fist vector, nothing more. 
     end
     return hcat(this.Q[1:end-1]...)
 end
 
-function GetLMatrix(this::IterativeLanczos)
+function GetLMatrix(this::IterativeLanczosLDL)
     if this.itr == 0 || this.itr == 1
         return 1
     end
     return Bidiagonal{Float64}(fill(1,this.itr), real(this.L), :L)
 end 
 
-function GetDMatrix(this::IterativeLanczos)
+function GetDMatrix(this::IterativeLanczosLDL)
     if this.itr == 0 
         error("There is no D matrix yet. Must orthogonalize before getting the D matrix")
     end
