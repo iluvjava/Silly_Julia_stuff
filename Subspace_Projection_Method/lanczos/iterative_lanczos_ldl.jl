@@ -7,8 +7,6 @@
 #   * them. 
 # ==============================================================================
 
-
-
 mutable struct IterativeLanczosLDL
     A
     q
@@ -17,13 +15,13 @@ mutable struct IterativeLanczosLDL
     betas          # upper/lower diagonals of the T matrix
     L              # Lower diagonals of the L in LDL.T
     Linv           # the first column of L Inverse. 
-
-    Q              # Previous 2 orthogonal vectors
+    Q              # All Previous orthogonal vectors, at least 3 of them.
     itr::Int64
     store_Q::Int64 # Store all the Orthogonal Vectors
     function IterativeLanczosLDL(A::Function, q0; store_Q=typemax(Int64))
         if store_Q <= 1
-            error("You can do lancozos by storing $(store_Q) number of previous orthogonal vectors")
+            # Asserts at least 3 vectors in collection Q. 
+            error("You cant do lancozos by storing $(store_Q) number of previous orthogonal vectors")
         end
         this = new()
         this.A = A
@@ -128,3 +126,6 @@ function GetDMatrix(this::IterativeLanczosLDL)
     return Diagonal{Float64}(real(this.D))
 end
 
+function GetPreviousOrtho(this::IterativeLanczosLDL, j::Int64=0)
+    return this.Q[end - j]
+end
