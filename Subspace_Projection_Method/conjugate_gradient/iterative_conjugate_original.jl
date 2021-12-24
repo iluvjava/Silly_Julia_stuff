@@ -46,7 +46,7 @@ function (this::IterativeCGOriginal)()
     this.d = this.rnew + β*d
     this.r = this.rnew                      # Override
     this.itr += 1 
-    return this.rnew
+    return convert(Float64, norm(this.rnew))
 end
 
 function GetCurrentResidualNorm(this::IterativeCG)

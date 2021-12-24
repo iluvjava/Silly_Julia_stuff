@@ -4,21 +4,22 @@ using Logging
 include("SubspaceProjectionMethods.jl")
 Sproj = SubspaceProjectionMethods
 
-function GetNastyPSDMatrix(rho::Number, N=20)
-    @assert rho <= 1 && rho >= 0
-    A = rand(N, N)
-    # Q, _ = qr(A)
-    EigenValues = zeros(N)
-    EigenMin, EigenMax = 0.001, 1    # Min Max Eigenvalues. 
-    EigenValues[1] = EigenMin
-    for IdexI in 2:N
-        EigenValues[IdexI] = EigenMin + 
-            ((IdexI - 1)/(N - 1))*(EigenMax - EigenMin)*rho^(N - IdexI)  # formulas
-    end
-    return diagm(EigenValues)
+# What is going on with the error produced by the cg via lanczos? 
+
+A = rand(10, 10)
+A = A'*A
+b = rand(10)
+ExactCG = Sproj.IterativeCGOriginal(
+    convert(Matrix{Rational{BigInt}}, A), 
+    convert(Vector{Rational{BigInt}}, b)
+)
+LanczosCG = Sproj.IterativeCGViaLanczos(
+    A, b
+)
+for Itr in 1:13
+    Resnorm1 = ExactCG()
+    Resnorm2 = LanczosCG()
+    Resnorm3 = norm(b - A*LanczosCG.x)
+    println("Resnorm Exact: $(Resnorm1), Resnorm Lanczos: $(Resnorm2), Resnorm Lanczos Recomp: $(Resnorm3)")
 end
 
-A = GetNastyPSDMatrix(0.1)
-
-
-# Nothing wrong with Lanzos. 
