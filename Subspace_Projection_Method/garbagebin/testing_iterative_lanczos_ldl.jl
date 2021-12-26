@@ -1,6 +1,5 @@
 
 include("iterative_lanczos_ldl.jl")
-Sproj = SubspaceProjectionMethods
 
 using LinearAlgebra
 using Test
@@ -11,12 +10,12 @@ using Logging
         A = rand(N, N)
         b = rand(N)
         A = A*A'
-        il = Sproj.IterativeLanczos(A, b)
+        il =  IterativeLanczos(A, b)
         il()
-        Q = Sproj.GetQMatrix(il)
-        L = Sproj.GetLMatrix(il)
-        T = Sproj.GetTMatrix(il)
-        D = Sproj.GetDMatrix(il)
+        Q =  GetQMatrix(il)
+        L =  GetLMatrix(il)
+        T =  GetTMatrix(il)
+        D =  GetDMatrix(il)
         print("QLTD Bass cases: :")
         display(Q)
         display(L)
@@ -24,10 +23,10 @@ using Logging
         display(D)
         for _ in 1:N-1
             R2norm = il()
-            Q = Sproj.GetQMatrix(il)
-            L = Sproj.GetLMatrix(il)
-            T = Sproj.GetTMatrix(il)
-            D = Sproj.GetDMatrix(il)
+            Q =  GetQMatrix(il)
+            L =  GetLMatrix(il)
+            T =  GetTMatrix(il)
+            D =  GetDMatrix(il)
             println("QLTD mattrices:")
             display(Q)
             display(L)
@@ -48,12 +47,12 @@ using Logging
         A = rand(N, N) + im*rand(N, N)
         b = rand(N) + im*rand(N)
         A = A*A'
-        il = Sproj.IterativeLanczos(A, b)
+        il =  IterativeLanczos(A, b)
         il()
-        Q = Sproj.GetQMatrix(il)
-        L = Sproj.GetLMatrix(il)
-        T = Sproj.GetTMatrix(il)
-        D = Sproj.GetDMatrix(il)
+        Q =  GetQMatrix(il)
+        L =  GetLMatrix(il)
+        T =  GetTMatrix(il)
+        D =  GetDMatrix(il)
         print("QLTD Bass cases: :")
         display(Q)
         display(L)
@@ -61,10 +60,10 @@ using Logging
         display(D)
         for _ in 1:N-1
             R2norm = il()
-            Q = Sproj.GetQMatrix(il)
-            L = Sproj.GetLMatrix(il)
-            T = Sproj.GetTMatrix(il)
-            D = Sproj.GetDMatrix(il)
+            Q =  GetQMatrix(il)
+            L =  GetLMatrix(il)
+            T =  GetTMatrix(il)
+            D =  GetDMatrix(il)
             println("QLTD mattrices:")
             display(Q)
             display(L)

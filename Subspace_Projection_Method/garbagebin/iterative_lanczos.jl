@@ -1,5 +1,11 @@
+# This is the original flavor of the Lanczos Algorithm which generates 
+# a Tridigonal matrix from a linear operator. 
+#   * This just performs the Iterative Lanczos, which, will not test to see
+#   * the problem with matrix, whether is symmetric or not. 
+
 mutable struct IterativeLanczos
     A::Function
+    q1
     betas::Dict
     alphas::Dict
     k::Int64       # when k=1, the algorithm haven't started yet. 
@@ -8,6 +14,7 @@ mutable struct IterativeLanczos
     function IterativeLanczos(A::Function, q1, q_store::Int64=typemax(Int64))
         @assert q_store > 1 "storage must be at least 2. "
         this = new()
+        this.q1 = copy(q1)
         this.A = A
         this.betas = Dict()
         this.alphas = Dict()
@@ -15,8 +22,6 @@ mutable struct IterativeLanczos
         this.q_store = q_store
         this.Q = Dict{Int64, typeof(q1)}()
         this.Q[1] = q1/norm(q1)
-        
-        this.alphas[1] = dot(this.Q[1], this.A(this.Q[1]))  # Alpha is computed in Advance!
         return this
     end
 
@@ -26,6 +31,7 @@ mutable struct IterativeLanczos
 
 end
 
+
 # Override the () operator. 
 """
     It performs one iteration of the Lanczos Orthogonalization. 
@@ -33,14 +39,14 @@ end
 function (this::IterativeLanczos)()
     q = this.Q[this.k]
     Aq = this.A(q)
-    alphas = this.alphas
     if this.k == 1
         qNew = Aq
     else
         qPre = this.Q[this.k - 1]
         qNew = Aq - this.betas[this.k - 1]*qPre
     end
-    qNew -= alphas[this.k]*q
+    alphaNew = dot(q, qNew)
+    qNew -= alphaNew*q
     betaNew = norm(qNew)
     qNew /= betaNew
 
@@ -49,7 +55,7 @@ function (this::IterativeLanczos)()
     end
 
     this.Q[this.k + 1] = qNew
-    this.alphas[this.k + 1] = dot(qNew, this.A(qNew))
+    this.alphas[this.k] = alphaNew
     this.betas[this.k] = betaNew
     this.k += 1
     return betaNew
@@ -65,6 +71,7 @@ function (this::IterativeLanczos)(j::Int64)
     end
     return betas
 end
+
 
 """
     Get the Q matrix from the Lanczos Iterations, the number of columnos of the 
@@ -82,6 +89,18 @@ function GetQMatrix(this::IterativeLanczos)
 end
 
 
+# """
+#     Get the H matrix, the Hessenberg form, it will be k by k - 1.
+    
+# """
+# function GetHMatrix(this::IterativeLanczos)
+#     x, y, values = Vector{Float64}(), Vector{Float64}(), Vector{Float64}()
+#     for Idx in 1:this.k
+
+#     end
+# end
+
+
 """
     Return the Tridiagonal matrix, take note thta, the matrix only supports 
     floating point, and it's returned as a sparse matrix. 
@@ -90,14 +109,16 @@ end
 """
 function GetTMatrix(this::IterativeLanczos)
     if this.k == 1
+        return nothing
+    end
+    if this.k == 2
         return this.alphas[1]
     end
     return SymTridiagonal{Float64}(
-        [real(this.alphas[Idx]) for Idx in 1: this.k],
-        [real(this.betas[Idx]) for Idx in 1:this.k - 1]
+        [real(this.alphas[Idx]) for Idx in 1: this.k - 1],
+        [real(this.betas[Idx]) for Idx in 1:this.k - 2]
     )
 end
-
 
 """
     Get the previous 3 Orthogonal vector from the Lanczos Algorithm. 
@@ -113,6 +134,3 @@ function GetPrevious3OrthogonalVec(this::IterativeLanczos)
     end
     return hcat(this.Q[this.k], this.Q[this.k - 1], this.Q[this.k - 2])
 end
-
-
-

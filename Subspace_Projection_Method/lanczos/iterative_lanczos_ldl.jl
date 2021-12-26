@@ -126,6 +126,12 @@ function GetDMatrix(this::IterativeLanczosLDL)
     return Diagonal{Float64}(real(this.D))
 end
 
-function GetPreviousOrtho(this::IterativeLanczosLDL, j::Int64=0)
-    return this.Q[end - j]
+function GetPrevious3OrthogonalVec(this::IterativeLanczosLDL)
+    if this.k == 1
+        return this.Q[1]
+    end
+    if this. == 2
+        return hcat(this.Q[1], this.Q[2])
+    end
+    return hcat(this.Q[end], this.Q[end - 1], this.Q[end - 2])
 end
