@@ -1,0 +1,3 @@
+[submodule "Metaprogramming_JuliaCon_2021"]
+	path = Metaprogramming_JuliaCon_2021
+	url = https://github.com/dpsanders/Metaprogramming_JuliaCon_2021.git
