@@ -40,14 +40,19 @@ function Base.:+(a::InexactFloat, b::InexactFloat)
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:+(a::InexactFloat, b::Real)
     c = a.x + b
     return InexactFloat(c, a.ϵ)
 end
+
+
 function Base.:+(b::Real, a::InexactFloat)
     c = a.x + b
     return InexactFloat(c, a.ϵ)
 end
+
 
 function Base.:-(a::InexactFloat, b::InexactFloat)
     c = a.x - b.x
@@ -55,18 +60,24 @@ function Base.:-(a::InexactFloat, b::InexactFloat)
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:-(a::InexactFloat, b::Real)
     c = a.x - b
     δ = a.δ
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:-(b::Real, a::InexactFloat)
     c = a.x - b
     δ = a.δ
     ϵ = δ/abs(c)
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:-(a::InexactFloat)
     c = -a.x 
     ϵ = a.ϵ
@@ -78,12 +89,16 @@ function Base.:*(a::InexactFloat, b::InexactFloat)
     ϵ = a.ϵ + b.ϵ + a.ϵ*b.ϵ
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:*(a::InexactFloat, b::Real)
     c = a.x*b
     ϵ = a.ϵ + 2.0^(exponent(eps(Float64)) - 1) + 
         a.ϵ*2.0^(exponent(eps(Float64)) - 1)
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:*(b::Real, a::InexactFloat)
     c = a.x*b
     ϵ = a.ϵ + 2.0^(exponent(eps(Float64)) - 1) + 
@@ -99,16 +114,21 @@ function Base.:/(a::InexactFloat, b::InexactFloat)
     ϵ = abs((a.ϵ + b.ϵ)/(1 - b.ϵ))  # Catastropic cancellation
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:/(a::InexactFloat, b::Real)
     c = a.x/b
     ϵ = a.ϵ
     return InexactFloat(c, ϵ)
 end
+
+
 function Base.:/(a::Real, b::InexactFloat)
     c = a.x + b
     ϵ = b.ϵ/(1 + b.ϵ)
     return InexactFloat(c, ϵ)
 end
+
 
 function Base.:^(a::InexactFloat, k::Integer)
     # Big error no worry about cancellation. 
