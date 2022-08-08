@@ -33,6 +33,9 @@ function GenerateSummary(this::AbstractAnimal, ::Type{AbstractAnimal})
 return foldl(*, summary) end
 
 
+"""
+    To use the methods from supertypes abstract animals, we have to use inherit it in julia first with "<:"
+"""
 @AbstractAnimalTemplate mutable struct HomoSapient <: AbstractAnimal
     name::String
     jobs::Vector{String}
@@ -59,11 +62,11 @@ end
 
 """
     This method can now inherit from abstract methods of its own, or other supertypes by the correct type 
-    singature. 
+    singature, from both the supertypes and the subtypes! 
 """
 function GenerateSummary(this::HomoSapient)
     result = GenerateSummary(this, AbstractAnimal)
-    result *= "\nThey think they are something important but they are really not.\n "
+    result *= "\nThey think they are something important but they are really not.\n"
     result *= "Individual Profile ======\n"
     result *= "name:"*this.name*"\n"
     result *= "jobs:"*foldl(*, this.jobs)*"\n"
@@ -71,7 +74,7 @@ function GenerateSummary(this::HomoSapient)
 return result end
 
 
-@AbstractAnimalTemplate mutable struct RedFox
+@AbstractAnimalTemplate mutable struct RedFox <: AbstractAnimal
     name::String
     location::String
     function RedFox()
@@ -89,12 +92,16 @@ return result end
     return this end
 end
 
+
 function GenerateSummary(this::RedFox)
     result = GenerateSummary(this, AbstractAnimal)
-    result *= "\n They are cute animals in homo sapeint's views."
+    result *= "\nThey are cute animals in homo sapeint's views."
 return result end
 
 
-
+println()
 homer_simpson = HomoSapient()
 GenerateSummary(homer_simpson)|>print
+println();println() 
+red_fox = RedFox()
+GenerateSummary(red_fox)|>print
